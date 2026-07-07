@@ -10,8 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Temporary compilation placeholder required by the Prisma compiler to generate the client.
-// This model is NEVER pushed or migrated to the database in Phase 1.
-model CompilePlaceholder {
-  id Int @id @default(autoincrement())
+enum Role {
+  CUSTOMER
+  AGENT
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@map("users")
 }
