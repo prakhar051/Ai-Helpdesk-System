@@ -1,34 +1,40 @@
-const mongoose = require('mongoose');
+const prisma = require('../config/prisma');
+const logger = require('../utils/logger');
 
-// @desc    Get system health check
+// @desc    Get system health status
 // @route   GET /api/v1/health
 // @access  Public
-const getHealth = (req, res) => {
-  const states = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  };
+const getHealth = async (req, res, next) => {
+  try {
+    // Run direct database check query without specific tables
+    await prisma.$queryRaw`SELECT 1`;
 
-  const dbState = states[mongoose.connection.readyState] || 'unknown';
+    const healthInfo = {
+      server: 'healthy',
+      database: 'connected',
+      uptime: process.uptime(),
+      timestamp: new Date()
+    };
 
-  const healthInfo = {
-    server: 'healthy',
-    database: dbState,
-    uptime: process.uptime(),
-    timestamp: new Date()
-  };
+    logger.info('System health diagnostics completed successfully.');
 
-  if (mongoose.connection.readyState === 1) {
     return res.status(200).json({
       status: 'success',
       data: healthInfo
     });
-  } else {
+  } catch (error) {
+    logger.error('Database diagnostic query failed:', { error: error.message });
+    
+    const healthInfo = {
+      server: 'healthy',
+      database: 'disconnected',
+      uptime: process.uptime(),
+      timestamp: new Date()
+    };
+
     return res.status(500).json({
       status: 'error',
-      message: 'Database connection issue detected',
+      message: 'Database connection check failed',
       data: healthInfo
     });
   }

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 const healthRoutes = require('./routes/healthRoutes');
 
@@ -17,28 +19,41 @@ app.use(cors({
   credentials: true
 }));
 
-// Request Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
+// Request Logging using Winston inside Morgan stream
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
+  stream: {
+    write: (message) => logger.info(message.trim())
+  }
+}));
 
-// Request Parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Express Rate Limiter
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    status: 'error',
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+  }
+});
+app.use('/api', apiLimiter);
 
-// API Version 1 Route Registrations
+// Request parsing middlewares
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Route mappings
 app.use('/api/v1/health', healthRoutes);
 
-// Catch-all 404 Route handler
+// Fallback 404 handler
 app.use((req, res, next) => {
   res.status(404);
-  const error = new Error(`API Endpoint Not Found - ${req.originalUrl}`);
+  const error = new Error(`Resource not found - ${req.originalUrl}`);
   next(error);
 });
 
-// Global Centralized Error Handler
+// Centralized error handler
 app.use(errorHandler);
 
 module.exports = app;

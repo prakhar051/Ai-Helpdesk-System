@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Implementation Plan: Phase 0 – Project Initialization & Repository Setup</title>
+  <title>Implementation Plan: Phase 1 – Development Environment & Project Setup</title>
   <style>
     :root {
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -116,200 +116,151 @@
 </head>
 <body>
 
-  <h1>Implementation Plan: Phase 0 – Project Initialization & Repository Setup</h1>
-  <p>System specifications and architectural roadmap for Phase 0 Initialization of the PERN/PostgreSQL Helpdesk System with Knowledge Base Management, AI Service Architecture, and AI Governance.</p>
+  <h1>Implementation Plan: Phase 1 – Development Environment & Project Setup</h1>
+  <p>System specifications and architectural roadmap for Phase 1 Setup of the PERN/PostgreSQL Helpdesk System.</p>
 
-  <h2>1. Project Vision</h2>
-  <p>To build a SaaS-ready, enterprise-grade AI Helpdesk System that integrates traditional support ticketing with advanced natural language processing. The system will automate administrative flows, augment agent workloads with smart suggestions, deflect support volume using a structured Knowledge Base, and analyze communication sentiments to optimize service quality and prioritization.</p>
+  <h2>1. Phase Objective</h2>
+  <p>Execute the project initialization steps to establish a running, connected full-stack PERN application. Install client and server package dependencies, initialize Prisma Client and map connectivity to PostgreSQL, bind security and traffic logging middleware in the Express application, and configure Axios client wrappers and routes in React. Create a diagnostics endpoint to verify client-to-database integration.</p>
 
-  <h2>2. Project Objectives</h2>
+  <h2>2. Features Covered</h2>
   <ul>
-    <li><strong>Volume Deflection</strong>: Suggest highly relevant solution articles and resolved cases before ticket submission.</li>
-    <li><strong>Intelligent Routing</strong>: Automate classification of incoming tickets into categories and priorities.</li>
-    <li><strong>Sentiment-Driven Dispatch</strong>: Analyze customer sentiments to flag frustrated users and recommend escalations.</li>
-    <li><strong>Agent Assistance</strong>: Provide automated timeline summaries and draft contextual replies.</li>
-    <li><strong>Rigorous Governance</strong>: Enforce confidence score metrics, manual overrides, decision logging, and responsible AI guardrails.</li>
-    <li><strong>Database Coherency</strong>: Utilize a normalized relational model (PostgreSQL) with type-safe access layers (Prisma).</li>
+    <li><strong>Project Skeleton Configurations</strong>: Initializing package files and runtime commands in client and server folders.</li>
+    <li><strong>Prisma ORM Initialization</strong>: Instantiating the Prisma Client and connecting it to a local or remote PostgreSQL database instance.</li>
+    <li><strong>Express Server Pipelines</strong>: Setting up security (Helmet), cross-origin policies (CORS), request limits (Express Rate Limiter), and traffic logger (Morgan).</li>
+    <li><strong>API Diagnostics Routing</strong>: Deploying versioned health router endpoints.</li>
+    <li><strong>Winston/Pino logger setup</strong>: Structuring system runtime logging files.</li>
+    <li><strong>Client App scaffolding</strong>: Mounting Tailwind CSS configuration rules, instantiating standard Axios clients, and mapping React routes.</li>
   </ul>
 
-  <h2>3. Project Scope</h2>
-  <p>The scope covers PostgreSQL and Prisma database planning, versioned Node.js/Express.js backend development, Knowledge Base Management modules, React.js frontend design, integration with Gemini AI via a dedicated AI Service Layer, local/cloud storage management, and deployment/logging orchestration.</p>
-
-  <h2>4. Functional Scope</h2>
+  <h2>3. Functional Requirements</h2>
   <ul>
-    <li><strong>Authentication & User Management</strong>: Secure token-based access with role controls (Admin, Agent, Customer).</li>
-    <li><strong>Knowledge Base Management</strong>: Management of articles and FAQs with categories/tags, admin CRUD interfaces, publishing workflows, version histories, and visibility rules.</li>
-    <li><strong>Ticketing Operations</strong>: Creation, priority updates, category mapping, assignments, and life-cycle status transitions.</li>
-    <li><strong>Communication Threading</strong>: Comments and internal agent-only notes.</li>
-    <li><strong>AI Knowledge Base Recommendation</strong>: Pre-creation search against the Knowledge Base and resolved tickets using semantic overlap to deflect submissions.</li>
-    <li><strong>AI Sentiment Analysis</strong>: Real-time evaluation of descriptions and comments to detect emotional states (Positive, Neutral, Negative, Frustrated, Urgent) for priority assistance.</li>
-    <li><strong>AI Core features</strong>: Auto-categorization, priority prediction, duplicate warnings, drafting suggestions, and summarizing timelines.</li>
-    <li><strong>Audit Trails</strong>: Capture details of ticket events, assignments, profile updates, and AI decisions.</li>
+    <li><strong>Health Telemetry</strong>: The server must expose a public path checking server uptime, timestamp data, and database connection state.</li>
+    <li><strong>Client Diagnostics Panel</strong>: The frontend client must show system health statuses, transitioning panels dynamically from loading states to active states based on API response metrics.</li>
   </ul>
 
-  <h2>5. Non-Functional Scope</h2>
+  <h2>4. Non-Functional Requirements</h2>
   <ul>
-    <li><strong>API Performance</strong>: Target latencies under 50ms for database CRUD queries, under 150ms for vector search, and under 300ms for active AI queries.</li>
-    <li><strong>System Scalability</strong>: Connection pooling and caching architecture (Redis) to support high concurrent usage.</li>
-    <li><strong>Security & Isolation</strong>: Enforce row-level restrictions and parameter validation.</li>
-    <li><strong>AI Fault Tolerance</strong>: Graceful fallback strategies to keyword indexing when external models time out.</li>
+    <li><strong>Latencies Limit</strong>: The server response latency for health checks must be under 50ms.</li>
+    <li><strong>Log Rotation</strong>: Automatically manage and rotate log files in storage directories to protect disk allocations.</li>
+    <li><strong>Header Shielding</strong>: Conceal server versions and signatures in response headers using Helmet policies.</li>
+    <li><strong>Rate Limits</strong>: Prevent denial-of-service attempts by setting maximum connection parameters per IP address.</li>
   </ul>
 
-  <h2>6. Technology Stack Selection (with justification)</h2>
+  <h2>5. PostgreSQL Database Design</h2>
+  <p>No business database tables or models are created in this phase. The Health Check endpoint will verify PostgreSQL connectivity directly through the Prisma Client. Business entities such as Users, Roles, Tickets, Categories, Priorities, Comments, Attachments, Knowledge Base, Activity Logs, Notifications, and AI-related entities will be introduced in later phases.</p>
+
+  <h2>6. Prisma Schema Changes (Conceptual)</h2>
+  <p>The health check logic will verify connectivity directly through database check functions exposed by the Prisma Client. No Prisma schemas or models are declared.</p>
+
+  <h2>7. Table Relationships</h2>
+  <p>No complex model relationships are instantiated in this phase.</p>
+
+  <h2>8. Foreign Key Relationships</h2>
+  <p>No foreign key mappings exist in this phase.</p>
+
+  <h2>9. Indexing Strategy</h2>
+  <p>No tables are created in this phase, so no custom indices are configured.</p>
+
+  <h2>10. Folder Structure Changes</h2>
+  <p>Establish the detailed MERN/PERN folder structure layout: Server: controllers, config, routes, middleware, utils, and validators directories. Client: src/components, pages, services, layouts, routes, styles, and utils folders.</p>
+
+  <h2>11. Models Required</h2>
+  <p>None. Business entities are introduced in later phases.</p>
+
+  <h2>12. Controllers Required</h2>
+  <p><code>healthController.js</code>: Extracts system metrics and queries PostgreSQL database status via Prisma Client operations.</p>
+
+  <h2>13. Services Required</h2>
+  <p><code>prismaClient.js</code> (Database service wrapper): Establishes a single cached instance of <code>PrismaClient</code> to handle connections and query logging logs.</p>
+
+  <h2>14. Routes / API Endpoints</h2>
+  <p>All API paths follow versioning guidelines. Diagnostics Route: /api/v1/health (Method: GET, Auth: Public, Headers: Accept: application/json).</p>
+
+  <h2>15. Middleware Required</h2>
   <ul>
-    <li><strong>Frontend: React, Tailwind CSS, Axios, React Router</strong>: High performance layouts, styling flexibility, and standard request integrations.</li>
-    <li><strong>Backend: Node.js, Express.js</strong>: Non-blocking execution paths and simple middleware bindings.</li>
-    <li><strong>Database: PostgreSQL</strong>: Strong relational consistency and reliable query engines.</li>
-    <li><strong>ORM: Prisma</strong>: Type-safe database queries and automated migration histories.</li>
-    <li><strong>AI: Google Gemini API & Sentence Embeddings</strong>: Rich NLP analysis and semantic similarity computations.</li>
-    <li><strong>Caching: Redis</strong>: High throughput in-memory caching to optimize database queries and rate limiter states.</li>
+    <li><strong>Helmet</strong>: Customizes HTTP response header values.</li>
+    <li><strong>CORS</strong>: Restricts access to configured origins.</li>
+    <li><strong>Morgan</strong>: Records incoming traffic requests.</li>
+    <li><strong>Express Rate Limiter</strong>: Limits public calls using IP addresses.</li>
+    <li><strong>Central Error Handler</strong>: Catches operational exceptions and yields standard JSON configurations.</li>
   </ul>
 
-  <h2>7. System Architecture Overview</h2>
-  <p>The application follows a modular, layered architecture:</p>
-  <pre><code>React Client (Presentation Layer)
-       ↓
-Express API (Routing & Validation Layer)
-       ↓
-Business Services (Logical Controller Layer)
-       ↓
-AI Service Layer (Advanced Processing Layer)
-       ↓
-Prisma ORM (Database Abstraction Layer)
-       ↓
-PostgreSQL (Storage Layer)</code></pre>
-  <p>External Services: Gemini API, Cloudinary (file storage), Email gateway, Winston Logger, and Redis cache.</p>
+  <h2>16. Frontend Pages Required</h2>
+  <p><code>HealthDashboard</code>: Main view container rendering diagnostic status cards.</p>
 
-  <h2>8. High-Level Architecture Diagram (Conceptual)</h2>
-  <p>Flow: Customer Browser -> React client -> Express server router -> Controllers & Business Services -> AI Service Layer -> Prisma ORM -> PostgreSQL. Services interact with Redis and Winston. AI Layer calls Gemini API.</p>
+  <h2>17. React Components Required</h2>
+  <p><code>Loader</code>: Reusable loader spinner. <code>DiagnosticsCard</code>: Displays components health indicators.</p>
 
-  <h2>9. Repository Strategy</h2>
-  <p>Monorepo structure to keep client and server directories in the same project, ensuring simplified coordination of versions and deployments.</p>
+  <h2>18. Business Logic Flow</h2>
+  <p>React client loads → Trigger Axios call to backend → Express captures request → Queries database via Prisma Client → Prisma executes diagnostics query on PostgreSQL → Connection verified → Server returns metadata → Client updates states.</p>
 
-  <h2>10. Git Branching Strategy</h2>
-  <p>GitFlow process where features are built in short-lived feature branches, merged into a develop branch, and finally pushed to the main production branch.</p>
+  <h2>19. AI Integration Flow</h2>
+  <p>No active AI processes are executed in this phase. Environmental variables must include key placeholders for the Gemini API.</p>
 
-  <h2>11. Monorepo Structure Planning</h2>
-  <p>Organization dividing source directories into frontend client workspace folders and backend server workspace folders.</p>
-
-  <h2>12. Folder Organization Strategy</h2>
-  <p>Maintain modular sub-directories. Server: routes, controllers, middleware, config, services, and database schemas. Client: components, pages, routes, styles, and utilities.</p>
-
-  <h2>13. Naming Conventions</h2>
-  <p>CamelCase for React components. camelCase for functions and variables. snake_case for PostgreSQL database elements. lowercase and hyphens for branch naming.</p>
-
-  <h2>14. Coding Standards</h2>
-  <p>Strict use of ESLint, Prettier formatter, and async/await error catching pipelines to prevent uncaught exceptions.</p>
-
-  <h2>15. Documentation Strategy</h2>
-  <p>Maintain detailed API specs, setup files (README), and inline JSDoc summaries explaining parameters and models.</p>
-
-  <h2>16. Environment Configuration Strategy</h2>
-  <p>Configured using env files, with environment variables checks on startup and templates for setting environment variable values.</p>
-
-  <h2>17. Configuration Management</h2>
-  <p>Centralized configuration reader script checks environmental variables and prevents boots when key credentials are missing.</p>
-
-  <h2>18. Security Guidelines</h2>
-  <p>Encryption of tokens, rate limiting IP origins, sanitized inputs, and Helmet policy settings.</p>
-
-  <h2>19. Database Strategy (PostgreSQL + Prisma)</h2>
-  <p>PostgreSQL schema migrations tracked in version control, type-safe queries compiled via Prisma Client, and relational keys verified at the DB layer.</p>
-
-  <h2>20. AI Integration Strategy</h2>
-  <p>Gemini SDK calls using isolated prompts, vector embeddings for similarity checking, with rules-based backup scripts to support standard ticket routing if API calls time out.</p>
-
-  <h2>21. File Storage Strategy</h2>
-  <p>Local storage pathways for development and Cloudinary integrations for staging and production, serving files through authorization validations.</p>
-
-  <h2>22. Logging Strategy</h2>
-  <p>Structured logs saved as JSON strings with levels (info, warn, error) using automatic log rotation files.</p>
-
-  <h2>23. Error Handling Strategy</h2>
-  <p>Centralized backend error handlers capture and map exceptions, shielding detailed errors from clients.</p>
-
-  <h2>24. Deployment Strategy</h2>
-  <p>React client compiled to static assets (Vercel/Netlify). Express backend deployed on hosting servers. PostgreSQL managed by DB providers (Neon/Supabase).</p>
-
-  <h2>25. CI/CD Planning</h2>
-  <p>Actions checking lint errors, running test scripts, and compiling front/back builds before merging PRs.</p>
-
-  <h2>26. Third-Party Services</h2>
-  <p>PostgreSQL databases, Google Gemini NLP model, Cloudinary media storage, Redis caching, and email gateways (Resend/SendGrid).</p>
-
-  <h2>27. Development Workflow</h2>
-  <p>Develop branch checkout -> Local migrations update -> Local checks -> PR creation -> Code review -> Merge to develop.</p>
-
-  <h2>28. Team Collaboration Guidelines</h2>
-  <p>Enforce mandatory code review processes requiring peer approval, and maintain task boards outlining features status.</p>
-
-  <h2>29. Versioning Strategy</h2>
-  <p>Utilize Semantic Versioning models and version API endpoints under /api/v1.</p>
-
-  <h2>30. Testing Strategy</h2>
-  <p>Test unit logic, verify API routes using integration scripts, and simulate user workflows with E2E scripts.</p>
-
-  <h2>31. AI Service Architecture</h2>
-  <p>To isolate external API processing and allow horizontal scaling, we deploy a dedicated AI Service Layer in the backend application:</p>
+  <h2>20. Security Considerations</h2>
   <ul>
-    <li><strong>AI Service</strong>: Orchestrates specialized sub-services.</li>
-    <li><strong>Prompt Manager</strong>: Controls systemic prompts templates and variable injections.</li>
-    <li><strong>Embedding Service</strong>: Requests vector representations.</li>
-    <li><strong>Knowledge Retrieval Service</strong>: Performs similarity comparisons against database articles.</li>
-    <li><strong>Recommendation Service</strong>: Evaluates retrieval distances to suggest articles/resolutions.</li>
-    <li><strong>Sentiment Service</strong>: Parses emotional cues (Positive, Neutral, Negative, Frustrated, Urgent).</li>
-    <li><strong>Summary Service</strong>: Compiles summaries of descriptions and comments.</li>
-    <li><strong>Categorization Service</strong>: Maps tickets to taxonomical categories.</li>
-    <li><strong>Duplicate Detection Service</strong>: Flags active duplicates using embedding thresholds.</li>
+    <li><strong>Credentials Isolation</strong>: Ensure <code>.env</code> is listed inside <code>.gitignore</code> to prevent leaking connection secrets.</li>
+    <li><strong>CORS Access Scope</strong>: Lock origin paths to the client app dev domain.</li>
+    <li><strong>Header Protections</strong>: Set Helmet policies to hide signatures.</li>
   </ul>
 
-  <h2>32. AI Governance</h2>
-  <p>To verify reliability, safety, and transparency in our automation pipelines:</p>
+  <h2>21. Validation Rules</h2>
+  <p>The server startup logic must check for the presence of <code>PORT</code> and <code>DATABASE_URL</code> configurations. Terminate execution if variables are missing.</p>
+
+  <h2>22. Error Handling Strategy</h2>
+  <p>Catch routing errors via Express fallthrough handlers. Map Prisma connection errors to operational validation objects. Mask internal database traces from payload outputs.</p>
+
+  <h2>23. Logging Requirements</h2>
+  <p>Integrate structured Winston logs. Save error traces to error logs and request metrics to combined logs.</p>
+
+  <h2>24. Performance Optimization</h2>
+  <p>Connection Re-use: Cache a single static client instance of the database mapper to prevent pool starvation. Connection Pooling: Set pool allocation thresholds within the connection string query parameters.</p>
+
+  <h2>25. Transaction Requirements</h2>
+  <p>No database transactions are run in this phase.</p>
+
+  <h2>26. Edge Cases</h2>
+  <p>PostgreSQL Database Offline: Ensure the Express backend starts successfully even if PostgreSQL is offline on boot, returning a database-disconnected error status in the health response.</p>
+
+  <h2>27. Testing Checklist</h2>
   <ul>
-    <li><strong>Confidence Scores</strong>: Every AI prediction must output a confidence value between 0.0 and 1.0.</li>
-    <li><strong>Human Review & Override</strong>: Support agents can modify any AI-applied tag, which is tracked.</li>
-    <li><strong>AI Decision Logging</strong>: Write permanent log records for every AI evaluation (tokens, scores, timestamps, overrides).</li>
-    <li><strong>Failure Handling & Fallback</strong>: If Gemini times out, the service defaults to regular regex keyword mapping and flags tickets for review.</li>
-    <li><strong>Responsible AI</strong>: Sanitize inputs to strip PII before API calls.</li>
+    <li>Verify backend runs on port.</li>
+    <li>Verify database connection is tracked by checking health check endpoint when PostgreSQL is active.</li>
+    <li>Verify database disconnected state resolves to a health check error response when PostgreSQL is offline.</li>
+    <li>Verify React UI mounts and fetches status values via Axios.</li>
   </ul>
 
-  <h2>33. Milestones</h2>
+  <h2>28. API Response Contracts</h2>
+  <p>Standardized JSON outputs for success and failure conditions. Success: contains server metrics, database state, server uptime, and timestamp values. Failure: contains description and components statuses.</p>
+
+  <h2>29. Postman Testing Plan</h2>
+  <p>Create request targeting the health endpoint. Confirm returned HTTP status code is 200 and check response data layout.</p>
+
+  <h2>30. Git Commit Message</h2>
+  <p>Configure Git commit standard rules to track setup actions using structural scope descriptions.</p>
+
+  <h2>31. Deliverables</h2>
   <ul>
-    <li><strong>Phase 0</strong>: Project Initialization & Repository Setup</li>
-    <li><strong>Phase 1</strong>: Project Setup</li>
-    <li><strong>Phase 2</strong>: Authentication & Authorization</li>
-    <li><strong>Phase 3</strong>: User Management</li>
-    <li><strong>Phase 4</strong>: Knowledge Base Management (Admin & Publishing Workflows)</li>
-    <li><strong>Phase 5</strong>: Ticket Management (CRUD)</li>
-    <li><strong>Phase 6</strong>: Categories & Priorities</li>
-    <li><strong>Phase 7</strong>: Ticket Assignment Workflow</li>
-    <li><strong>Phase 8</strong>: Comments & Attachments</li>
-    <li><strong>Phase 9</strong>: Search, Filtering & Sorting</li>
-    <li><strong>Phase 10</strong>: AI Ticket Categorization</li>
-    <li><strong>Phase 11</strong>: AI Priority Prediction</li>
-    <li><strong>Phase 12</strong>: AI Duplicate Ticket Detection</li>
-    <li><strong>Phase 13</strong>: AI Knowledge Base Recommendation</li>
-    <li><strong>Phase 14</strong>: AI Suggested Replies</li>
-    <li><strong>Phase 15</strong>: AI Ticket Summarization</li>
-    <li><strong>Phase 16</strong>: AI Sentiment Analysis</li>
-    <li><strong>Phase 17</strong>: Dashboard & Analytics (incorporating sentiment trends)</li>
-    <li><strong>Phase 18</strong>: Notifications (Email/In-App)</li>
-    <li><strong>Phase 19</strong>: Activity Logs & Audit Trail (incorporating AI Decision Logging)</li>
-    <li><strong>Phase 20</strong>: Performance Optimization & Caching (Redis)</li>
-    <li><strong>Phase 21</strong>: Deployment, Monitoring & Documentation</li>
+    <li>Client and Server configurations (<code>package.json</code>, <code>tailwind.config.js</code>).</li>
+    <li>Prisma schema setup files (<code>prisma/schema.prisma</code>).</li>
+    <li>Database client wrapper configurations.</li>
+    <li>Express app pipelines.</li>
+    <li>Health check router and controller systems.</li>
+    <li>Visual diagnostics screens.</li>
   </ul>
 
-  <h2>34. Risks & Mitigation</h2>
-  <p>AI downtime mitigated by falling back to standard classification defaults and keyword indexing. Connection leaks blocked using pooling and limit parameters.</p>
+  <h2>32. Acceptance Criteria</h2>
+  <ul>
+    <li>Prisma Client successfully executes connectivity queries against the PostgreSQL database.</li>
+    <li>Diagnostics page queries the health check API and updates indicator card elements based on server-database health telemetry.</li>
+    <li>Development server executes without error and logs database connectivity events.</li>
+  </ul>
 
-  <h2>35. Deliverables</h2>
-  <p>Complete project structure template, environment configuration parameters, and detailed setup guides.</p>
+  <h2>33. Dependencies on Previous Phases</h2>
+  <p>Phase 0 – Project Initialization & Repository Setup: The directory layout must be initialized and Git remote origins mapped.</p>
 
-  <h2>36. Acceptance Criteria</h2>
-  <p>Clean monorepo configuration compiling without errors, repository paths verified, and configuration variables mapped.</p>
-
-  <h2>37. Preparation for Phase 1</h2>
-  <p>Align folder strategies and verify development database connectivity. The next phase will compile the baseline package integrations and routes.</p>
+  <h2>34. Preparation for the Next Phase</h2>
+  <p>Verify local connection states, checking that PostgreSQL migrations and Prisma definitions work. The next phase will establish User schemas, JWT Auth handlers, and role middlewares.</p>
 
   <div class="footer">
     &copy; 2026 AI Helpdesk System Project. Confidential.
