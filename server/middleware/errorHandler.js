@@ -1,7 +1,7 @@
 const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const statusCode = err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
   
   // Log the complete error stack trace using Winston
   logger.error(`App Error: ${err.message}`, { 
