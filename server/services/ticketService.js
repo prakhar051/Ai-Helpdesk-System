@@ -108,11 +108,27 @@ const updateTicket = async (id, user, updateData) => {
     if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
 
   } else if (user.role === 'AGENT') {
-    // Agents can change status, assignees, categories, and priority. They cannot change description.
+    // Agents can change status, priority, and categories. They cannot change description.
     if (updateData.status !== undefined) finalUpdates.status = updateData.status;
     if (updateData.priority !== undefined) finalUpdates.priority = updateData.priority;
     if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
-    if (updateData.agentId !== undefined) finalUpdates.agentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
+    
+    if (updateData.agentId !== undefined) {
+      const targetAgentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
+      // Agents can only claim a ticket for themselves (cannot assign to others or unassign)
+      if (targetAgentId !== user.id) {
+        const error = new Error('Agents do not have permission to assign tickets to others or unassign them.');
+        error.statusCode = 403;
+        throw error;
+      }
+      // Agents cannot claim a ticket already assigned to someone else
+      if (ticket.agentId !== null && ticket.agentId !== user.id) {
+        const error = new Error('This ticket has already been assigned to another agent.');
+        error.statusCode = 403;
+        throw error;
+      }
+      finalUpdates.agentId = targetAgentId;
+    }
 
   } else if (user.role === 'ADMIN') {
     // Admins can change everything
@@ -124,21 +140,39 @@ const updateTicket = async (id, user, updateData) => {
     if (updateData.agentId !== undefined) finalUpdates.agentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
   }
 
-  const updated = await prisma.ticket.update({
-    where: { id },
-    data: finalUpdates,
-    include: {
-      customer: {
-        select: { id: true, name: true, email: true, role: true }
-      },
-      agent: {
-        select: { id: true, name: true, email: true, role: true }
-      },
-      category: {
-        select: { id: true, name: true, isActive: true }
+  const updateWhere = { id };
+  
+  // Atomic claiming protection: match database row only if agentId is still null
+  if (ticket.agentId === null && finalUpdates.agentId === user.id) {
+    updateWhere.agentId = null;
+  }
+
+  let updated;
+  try {
+    updated = await prisma.ticket.update({
+      where: updateWhere,
+      data: finalUpdates,
+      include: {
+        customer: {
+          select: { id: true, name: true, email: true, role: true }
+        },
+        agent: {
+          select: { id: true, name: true, email: true, role: true }
+        },
+        category: {
+          select: { id: true, name: true, isActive: true }
+        }
       }
+    });
+  } catch (err) {
+    // Catch Prisma code P2025: Record to update not found (meaning agentId is no longer null)
+    if (err.code === 'P2025' && updateWhere.agentId === null) {
+      const error = new Error('This ticket has already been claimed by another agent.');
+      error.statusCode = 409;
+      throw error;
     }
-  });
+    throw err;
+  }
 
   return updated;
 };

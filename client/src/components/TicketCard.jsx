@@ -82,9 +82,9 @@ export default function TicketCard({ ticket, onSelect }) {
 
         {/* Assignee Info */}
         <div className="flex justify-between items-center text-[10px] pt-1.5 border-t border-white/5">
-          <span className="text-gray-500">Assignee:</span>
-          <span className="text-gray-300 font-semibold">
-            {ticket.agent ? ticket.agent.name : 'Unassigned'}
+          <span className="text-gray-500">Assignment:</span>
+          <span className={`font-semibold ${ticket.agent ? 'text-indigo-400' : 'text-amber-500/80'}`}>
+            {ticket.agent ? `Assigned to: ${ticket.agent.name}` : 'Unassigned'}
           </span>
         </div>
       </div>

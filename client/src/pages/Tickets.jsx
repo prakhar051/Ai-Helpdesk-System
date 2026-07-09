@@ -347,10 +347,13 @@ export default function Tickets() {
                   >
                     <option value="">All Assignees</option>
                     <option value="unassigned">Unassigned Queue</option>
-                    {agents.map(ag => (
-                      <option key={ag.id} value={ag.id}>
-                        {ag.name} ({ag.role})
-                      </option>
+                    <option value={user.id}>Assigned to Me</option>
+                    {user?.role === 'ADMIN' && agents.map(ag => (
+                      ag.id !== user.id && (
+                        <option key={ag.id} value={ag.id}>
+                          {ag.name} ({ag.role})
+                        </option>
+                      )
                     ))}
                   </select>
                 </div>
