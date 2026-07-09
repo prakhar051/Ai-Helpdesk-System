@@ -29,6 +29,13 @@ enum TicketStatus {
   CLOSED
 }
 
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model User {
   id              String    @id @default(uuid())
   email           String    @unique
@@ -73,19 +80,37 @@ model Ticket {
   title        String
   description  String
   status       TicketStatus @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
   isDeleted    Boolean      @default(false) @map("is_deleted")
   deletedAt    DateTime?    @map("deleted_at")
   customerId   String       @map("customer_id")
   customer     User         @relation("CustomerTickets", fields: [customerId], references: [id])
   agentId      String?      @map("agent_id")
   agent        User?        @relation("AgentTickets", fields: [agentId], references: [id])
+  categoryId   String?      @map("category_id")
+  category     Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
   @@index([customerId])
   @@index([agentId])
   @@index([status])
+  @@index([priority])
+  @@index([categoryId])
   @@index([isDeleted])
   @@index([createdAt])
   @@map("tickets")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  tickets     Ticket[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@map("categories")
 }

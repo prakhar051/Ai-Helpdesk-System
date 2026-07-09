@@ -5,13 +5,17 @@ const logger = require('../utils/logger');
 // Input Validation Schemas
 const createTicketSchema = z.object({
   title: z.string().trim().min(3, 'Title must be at least 3 characters'),
-  description: z.string().trim().min(10, 'Description must be at least 10 characters')
+  description: z.string().trim().min(10, 'Description must be at least 10 characters'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  categoryId: z.string().trim().nullable().optional()
 }).strict();
 
 const updateTicketSchema = z.object({
   title: z.string().trim().min(3, 'Title must be at least 3 characters').optional(),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING', 'RESOLVED', 'CLOSED']).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  categoryId: z.string().trim().nullable().optional(),
   agentId: z.string().trim().nullable().optional()
 }).strict();
 
@@ -20,10 +24,12 @@ const updateTicketSchema = z.object({
 // @access  Private
 const getTickets = async (req, res, next) => {
   try {
-    const { search, status, agentId, customerId, page, limit } = req.query;
+    const { search, status, priority, categoryId, agentId, customerId, page, limit } = req.query;
     const result = await ticketService.getAllTickets({
       search,
       status,
+      priority,
+      categoryId,
       agentId,
       customerId,
       role: req.user.role,

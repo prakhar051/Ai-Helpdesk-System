@@ -55,9 +55,9 @@ export default function Dashboard() {
           <Link to="/kb" className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5 block">
             Manage Articles
           </Link>
-          <button className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5">
-            Configure Integrations
-          </button>
+          <Link to="/categories" className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5 block">
+            Manage Categories
+          </Link>
           <button className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5">
             Database Settings
           </button>
@@ -183,6 +183,12 @@ export default function Dashboard() {
             className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
           >
             Support Tickets
+          </Link>
+          <Link 
+            to="/categories"
+            className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
+          >
+            Categories
           </Link>
           <Link 
             to="/profile"

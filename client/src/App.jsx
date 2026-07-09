@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
 import KnowledgeBase from './pages/KnowledgeBase';
 import Tickets from './pages/Tickets';
+import Categories from './pages/Categories';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -51,6 +52,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Tickets />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/categories" 
+            element={
+              <ProtectedRoute>
+                <Categories />
               </ProtectedRoute>
             } 
           />

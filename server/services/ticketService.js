@@ -3,7 +3,7 @@ const prisma = require('../config/prisma');
 /**
  * Create a new Ticket.
  * @param {string} customerId - The customer user ID.
- * @param {object} data - Ticket details (title, description).
+ * @param {object} data - Ticket details (title, description, categoryId, priority).
  * @returns {Promise<object>} Created ticket.
  */
 const createTicket = async (customerId, data) => {
@@ -12,6 +12,8 @@ const createTicket = async (customerId, data) => {
       title: data.title,
       description: data.description,
       status: 'OPEN',
+      priority: data.priority || 'MEDIUM',
+      categoryId: data.categoryId === 'unassigned' ? null : (data.categoryId || null),
       customerId
     },
     include: {
@@ -20,6 +22,9 @@ const createTicket = async (customerId, data) => {
       },
       agent: {
         select: { id: true, name: true, email: true, role: true }
+      },
+      category: {
+        select: { id: true, name: true, isActive: true }
       }
     }
   });
@@ -42,6 +47,9 @@ const getTicketById = async (id, user) => {
       },
       agent: {
         select: { id: true, name: true, email: true, role: true }
+      },
+      category: {
+        select: { id: true, name: true, isActive: true }
       }
     }
   });
@@ -94,13 +102,16 @@ const updateTicket = async (id, user, updateData) => {
       error.statusCode = 400;
       throw error;
     }
-    // Customers can only change title and description
+    // Customers can only change title and description, and optionally category during initial OPEN phase
     if (updateData.title !== undefined) finalUpdates.title = updateData.title;
     if (updateData.description !== undefined) finalUpdates.description = updateData.description;
+    if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
 
   } else if (user.role === 'AGENT') {
-    // Agents can change status and assignees. They cannot change description.
+    // Agents can change status, assignees, categories, and priority. They cannot change description.
     if (updateData.status !== undefined) finalUpdates.status = updateData.status;
+    if (updateData.priority !== undefined) finalUpdates.priority = updateData.priority;
+    if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
     if (updateData.agentId !== undefined) finalUpdates.agentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
 
   } else if (user.role === 'ADMIN') {
@@ -108,6 +119,8 @@ const updateTicket = async (id, user, updateData) => {
     if (updateData.title !== undefined) finalUpdates.title = updateData.title;
     if (updateData.description !== undefined) finalUpdates.description = updateData.description;
     if (updateData.status !== undefined) finalUpdates.status = updateData.status;
+    if (updateData.priority !== undefined) finalUpdates.priority = updateData.priority;
+    if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
     if (updateData.agentId !== undefined) finalUpdates.agentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
   }
 
@@ -120,6 +133,9 @@ const updateTicket = async (id, user, updateData) => {
       },
       agent: {
         select: { id: true, name: true, email: true, role: true }
+      },
+      category: {
+        select: { id: true, name: true, isActive: true }
       }
     }
   });
@@ -156,10 +172,10 @@ const deleteTicket = async (id) => {
 
 /**
  * Query all tickets with search, filters, pagination, and role-based scoping.
- * @param {object} params - search, status, agentId, customerId, role, page, limit
+ * @param {object} params - search, status, priority, categoryId, agentId, customerId, role, page, limit
  * @returns {Promise<object>} Tickets array & pagination.
  */
-const getAllTickets = async ({ search, status, agentId, customerId, role, page = 1, limit = 8 }) => {
+const getAllTickets = async ({ search, status, priority, categoryId, agentId, customerId, role, page = 1, limit = 8 }) => {
   const pageNum = Math.max(1, parseInt(page) || 1);
   const limitNum = Math.max(1, parseInt(limit) || 8);
   const skip = (pageNum - 1) * limitNum;
@@ -183,6 +199,16 @@ const getAllTickets = async ({ search, status, agentId, customerId, role, page =
   // Filter by status
   if (status) {
     where.status = status;
+  }
+
+  // Filter by priority
+  if (priority) {
+    where.priority = priority;
+  }
+
+  // Filter by category
+  if (categoryId) {
+    where.categoryId = categoryId === 'unassigned' ? null : categoryId;
   }
 
   // Search keyword parsing
@@ -211,6 +237,9 @@ const getAllTickets = async ({ search, status, agentId, customerId, role, page =
         },
         agent: {
           select: { id: true, name: true, email: true, role: true }
+        },
+        category: {
+          select: { id: true, name: true, isActive: true }
         }
       },
       orderBy: { createdAt: 'desc' },

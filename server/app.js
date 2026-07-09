@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const kbRoutes = require('./routes/kbRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/kb', kbRoutes);
 app.use('/api/v1/tickets', ticketRoutes);
+app.use('/api/v1/categories', categoryRoutes);
 
 // Fallback 404 handler
 app.use((req, res, next) => {

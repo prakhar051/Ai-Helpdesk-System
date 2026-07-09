@@ -1,9 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import apiClient from '../services/apiClient';
 
 export default function TicketForm({ ticket = null, onSubmit, onCancel, loading = false }) {
   const [title, setTitle] = useState(ticket?.title || '');
   const [description, setDescription] = useState(ticket?.description || '');
+  const [priority, setPriority] = useState(ticket?.priority || 'MEDIUM');
+  const [categoryId, setCategoryId] = useState(ticket?.categoryId || 'unassigned');
+  
+  // Dynamic categories list
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
+
+  // Fetch categories from backend (only active ones)
+  const fetchActiveCategories = async () => {
+    try {
+      const response = await apiClient.get('/categories', { params: { isActive: 'true' } });
+      if (response.data?.status === 'success') {
+        setCategories(response.data.data.categories);
+      }
+    } catch (err) {
+      console.error('Failed to load active categories for form:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveCategories();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,7 +43,9 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
 
     onSubmit({
       title: title.trim(),
-      description: description.trim()
+      description: description.trim(),
+      priority,
+      categoryId: categoryId === 'unassigned' ? null : categoryId
     });
   };
 
@@ -48,6 +72,42 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
           placeholder="Describe the issue briefly (e.g. Email sync failing)"
           className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
         />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Priority Selector */}
+        <div className="space-y-1">
+          <label className="text-xs text-gray-400 uppercase font-semibold block">Priority Level</label>
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            disabled={loading}
+            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+          >
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="URGENT">Urgent</option>
+          </select>
+        </div>
+
+        {/* Category Selector */}
+        <div className="space-y-1">
+          <label className="text-xs text-gray-400 uppercase font-semibold block">Category</label>
+          <select
+            value={categoryId || 'unassigned'}
+            onChange={(e) => setCategoryId(e.target.value)}
+            disabled={loading}
+            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+          >
+            <option value="unassigned">Uncategorized</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Ticket Description */}

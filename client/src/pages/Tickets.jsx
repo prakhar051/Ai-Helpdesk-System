@@ -22,10 +22,13 @@ export default function Tickets() {
   // Filters State
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [assigneeFilter, setAssigneeFilter] = useState(''); // '' (All), 'unassigned', or AGENT_ID
 
-  // Admins only list of agents for assignment
+  // Lists for dropdown selectors
   const [agents, setAgents] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   // Loading & Alerts
   const [loading, setLoading] = useState(true);
@@ -42,6 +45,8 @@ export default function Tickets() {
         params: {
           search: search.trim() || undefined,
           status: statusFilter || undefined,
+          priority: priorityFilter || undefined,
+          categoryId: categoryFilter || undefined,
           agentId: assigneeFilter || undefined,
           page,
           limit
@@ -64,7 +69,6 @@ export default function Tickets() {
   const fetchAgents = async () => {
     if (user?.role !== 'ADMIN') return;
     try {
-      // Query users mapping roles
       const response = await apiClient.get('/users', { params: { limit: 100 } });
       if (response.data?.status === 'success') {
         const filtered = response.data.data.users.filter(u => u.role === 'AGENT' || u.role === 'ADMIN');
@@ -75,15 +79,30 @@ export default function Tickets() {
     }
   };
 
+  // Fetch active categories list for dropdown selectors
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get('/categories', {
+        params: user?.role === 'CUSTOMER' ? { isActive: 'true' } : undefined
+      });
+      if (response.data?.status === 'success') {
+        setCategories(response.data.data.categories);
+      }
+    } catch (err) {
+      console.error('Failed to load categories list:', err);
+    }
+  };
+
   // Run queries
   useEffect(() => {
     if (view === 'LIST') {
       fetchTickets();
     }
-  }, [page, statusFilter, assigneeFilter, view]);
+  }, [page, statusFilter, priorityFilter, categoryFilter, assigneeFilter, view]);
 
   useEffect(() => {
     fetchAgents();
+    fetchCategories();
   }, [user]);
 
   // Handle ticket selection detail view
@@ -232,7 +251,7 @@ export default function Tickets() {
         {view === 'LIST' && (
           <div className="space-y-6">
             {/* Filter Panel */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
               
               {/* Search Form */}
               <form
@@ -241,18 +260,18 @@ export default function Tickets() {
                   setPage(1);
                   fetchTickets();
                 }}
-                className="flex gap-2 col-span-1 md:col-span-2"
+                className="flex gap-2 col-span-1 sm:col-span-2"
               >
                 <input
                   type="text"
-                  placeholder="Search by title, desc, or number (e.g. HD-000002)..."
+                  placeholder="Search tickets..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
+                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
                 />
                 <button
                   type="submit"
-                  className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition"
+                  className="px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition"
                 >
                   Search
                 </button>
@@ -266,7 +285,7 @@ export default function Tickets() {
                     setStatusFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
                 >
                   <option value="">All Statuses</option>
                   <option value="OPEN">Open</option>
@@ -274,6 +293,44 @@ export default function Tickets() {
                   <option value="PENDING">Pending</option>
                   <option value="RESOLVED">Resolved</option>
                   <option value="CLOSED">Closed</option>
+                </select>
+              </div>
+
+              {/* Priority filter dropdown */}
+              <div>
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => {
+                    setPriorityFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                >
+                  <option value="">All Priorities</option>
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+
+              {/* Category filter dropdown */}
+              <div>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => {
+                    setCategoryFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                >
+                  <option value="">All Categories</option>
+                  <option value="unassigned">Uncategorized</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -286,7 +343,7 @@ export default function Tickets() {
                       setAssigneeFilter(e.target.value);
                       setPage(1);
                     }}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="">All Assignees</option>
                     <option value="unassigned">Unassigned Queue</option>
@@ -473,6 +530,50 @@ export default function Tickets() {
                   ) : (
                     <span className="text-xs text-gray-300 font-semibold">
                       {selectedTicket.agent ? selectedTicket.agent.name : 'Unassigned'}
+                    </span>
+                  )}
+                </div>
+
+                {/* Priority Selection Dropdown */}
+                <div className="space-y-2">
+                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Priority Level</label>
+                  {user?.role !== 'CUSTOMER' ? (
+                    <select
+                      value={selectedTicket.priority}
+                      onChange={(e) => handleMetaUpdate('priority', e.target.value)}
+                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                    >
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
+                      <option value="URGENT">Urgent</option>
+                    </select>
+                  ) : (
+                    <span className="inline-block px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold rounded-lg uppercase">
+                      {selectedTicket.priority}
+                    </span>
+                  )}
+                </div>
+
+                {/* Category Selection Dropdown */}
+                <div className="space-y-2">
+                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Category</label>
+                  {user?.role !== 'CUSTOMER' ? (
+                    <select
+                      value={selectedTicket.categoryId || 'unassigned'}
+                      onChange={(e) => handleMetaUpdate('categoryId', e.target.value)}
+                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                    >
+                      <option value="unassigned">Uncategorized</option>
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="inline-block px-3 py-1.5 bg-white/5 border border-white/10 text-gray-300 text-xs font-bold rounded-lg uppercase">
+                      {selectedTicket.category ? selectedTicket.category.name : 'Uncategorized'}
                     </span>
                   )}
                 </div>
