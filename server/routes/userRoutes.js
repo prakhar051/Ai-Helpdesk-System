@@ -1,7 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
-const { protect, restrictTo } = require('../middleware/authMiddleware');
-const validate = require('../middleware/validationMiddleware');
+const { protect, restrictTo, validate } = require('../middleware/authMiddleware');
 const { 
   updateProfileSchema, 
   updateRoleSchema, 
