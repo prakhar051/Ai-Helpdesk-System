@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/apiClient';
 import TicketCard from '../components/TicketCard';
 import TicketForm from '../components/TicketForm';
+import CommentSection from '../components/CommentSection';
+import AttachmentSection from '../components/AttachmentSection';
 
 export default function Tickets() {
   const { user } = useAuth();
@@ -470,6 +472,10 @@ export default function Tickets() {
                     </button>
                   </div>
                 )}
+
+                {/* Ticket Collaboration: Comments & Attachments Sections */}
+                <CommentSection ticketId={selectedTicket.id} />
+                <AttachmentSection ticketId={selectedTicket.id} />
               </div>
 
               {/* Sidebar Action Widgets Panel */}

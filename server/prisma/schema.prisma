@@ -46,6 +46,8 @@ model User {
   articles        Article[]
   customerTickets Ticket[]  @relation("CustomerTickets")
   agentTickets    Ticket[]  @relation("AgentTickets")
+  comments        Comment[]
+  attachments     Attachment[]
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
@@ -89,6 +91,8 @@ model Ticket {
   agent        User?        @relation("AgentTickets", fields: [agentId], references: [id])
   categoryId   String?      @map("category_id")
   category     Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  comments     Comment[]
+  attachments  Attachment[]
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
@@ -113,4 +117,37 @@ model Category {
 
   @@index([isActive])
   @@map("categories")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  ticketId  String   @map("ticket_id")
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId  String   @map("author_id")
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+  @@map("comments")
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String   @map("original_name")
+  filePath     String   @map("file_path")
+  mimeType     String   @map("mime_type")
+  fileSize     Int      @map("file_size")
+  ticketId     String   @map("ticket_id")
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  uploadedById String   @map("uploaded_by_id")
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([ticketId])
+  @@index([uploadedById])
+  @@map("attachments")
 }
