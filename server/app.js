@@ -8,6 +8,7 @@ const errorHandler = require('./middleware/errorHandler');
 const healthRoutes = require('./routes/healthRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const kbRoutes = require('./routes/kbRoutes');
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/kb', kbRoutes);
 
 // Fallback 404 handler
 app.use((req, res, next) => {

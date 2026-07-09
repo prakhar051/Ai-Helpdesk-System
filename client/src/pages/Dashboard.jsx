@@ -52,9 +52,9 @@ export default function Dashboard() {
           <Link to="/admin/users" className="p-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition duration-150 text-center block">
             Manage Users
           </Link>
-          <button className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5">
-            View System Logs
-          </button>
+          <Link to="/kb" className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5 block">
+            Manage Articles
+          </Link>
           <button className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5">
             Configure Integrations
           </button>
@@ -172,6 +172,12 @@ export default function Dashboard() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
             Role: {user.role}
           </div>
+          <Link 
+            to="/kb"
+            className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
+          >
+            Knowledge Base
+          </Link>
           <Link 
             to="/profile"
             className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"

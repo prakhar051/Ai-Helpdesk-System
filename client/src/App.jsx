@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
+import KnowledgeBase from './pages/KnowledgeBase';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -31,6 +32,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/kb" 
+            element={
+              <ProtectedRoute>
+                <KnowledgeBase />
               </ProtectedRoute>
             } 
           />
