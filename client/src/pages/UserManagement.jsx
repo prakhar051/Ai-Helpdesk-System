@@ -45,11 +45,6 @@ export default function UserManagement() {
     }
   };
 
-  // Reset page when dropdown filters change
-  useEffect(() => {
-    setPage(1);
-  }, [roleFilter, statusFilter]);
-
   // Fetch users when page or dropdown filters change
   useEffect(() => {
     fetchUsers();
@@ -152,7 +147,7 @@ export default function UserManagement() {
           <div>
             <select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
               className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition duration-150"
             >
               <option value="">All Roles</option>
@@ -165,7 +160,7 @@ export default function UserManagement() {
           <div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
               className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition duration-150"
             >
               <option value="">All Statuses</option>

@@ -1,11 +1,11 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
+const validate = require('../middleware/validationMiddleware');
 const { 
   updateProfileSchema, 
   updateRoleSchema, 
-  updateStatusSchema, 
-  validate 
+  updateStatusSchema
 } = require('../validators/userValidator');
 
 const router = express.Router();
