@@ -18,7 +18,7 @@ export default function Register() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/diagnostics', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
