@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/common/Loader';
 
@@ -49,9 +49,9 @@ export default function Dashboard() {
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h3 className="text-lg font-bold text-white mb-4">System Settings & Management</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <button className="p-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition duration-150 text-center">
+          <Link to="/admin/users" className="p-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition duration-150 text-center block">
             Manage Users
-          </button>
+          </Link>
           <button className="p-4 bg-slate-800 hover:bg-slate-700 text-gray-200 text-sm font-semibold rounded-xl transition duration-150 text-center border border-white/5">
             View System Logs
           </button>
@@ -172,6 +172,12 @@ export default function Dashboard() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
             Role: {user.role}
           </div>
+          <Link 
+            to="/profile"
+            className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
+          >
+            My Profile
+          </Link>
           <button 
             onClick={handleLogout}
             className="py-1.5 px-4 rounded-xl bg-red-600/10 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/20 font-semibold text-xs transition duration-150"
