@@ -96,9 +96,9 @@ export default function Dashboard() {
               <h4 className="text-sm font-semibold text-white mt-1">Cannot access diagnostic portal</h4>
               <p className="text-xs text-gray-400">Customer: Alice Johnson | Updated 5m ago</p>
             </div>
-            <button className="py-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition duration-150">
+            <Link to="/tickets" className="py-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition duration-150 block text-center">
               Open Ticket
-            </button>
+            </Link>
           </div>
           <div className="p-4 bg-[#161C2C] border border-white/5 rounded-xl flex items-center justify-between">
             <div>
@@ -106,9 +106,9 @@ export default function Dashboard() {
               <h4 className="text-sm font-semibold text-white mt-1">Reset password mail not received</h4>
               <p className="text-xs text-gray-400">Customer: Bob Smith | Updated 1h ago</p>
             </div>
-            <button className="py-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition duration-150">
+            <Link to="/tickets" className="py-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition duration-150 block text-center">
               Open Ticket
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -146,9 +146,9 @@ export default function Dashboard() {
         <p className="text-sm text-gray-400 max-w-sm mb-6">
           Submit a ticket to connect with our dedicated customer support agents.
         </p>
-        <button className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/20 hover:opacity-90 transition duration-150">
+        <Link to="/tickets" className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/20 hover:opacity-90 transition duration-150 block">
           Create Support Ticket
-        </button>
+        </Link>
       </div>
     </div>
   );
@@ -177,6 +177,12 @@ export default function Dashboard() {
             className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
           >
             Knowledge Base
+          </Link>
+          <Link 
+            to="/tickets"
+            className="py-1.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs border border-white/10 transition duration-150"
+          >
+            Support Tickets
           </Link>
           <Link 
             to="/profile"

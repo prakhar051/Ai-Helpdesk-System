@@ -21,16 +21,26 @@ enum ArticleStatus {
   PUBLISHED
 }
 
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String
-  role      Role      @default(CUSTOMER)
-  isActive  Boolean   @default(true) @map("is_active")
-  articles  Article[]
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String
+  name            String
+  role            Role      @default(CUSTOMER)
+  isActive        Boolean   @default(true) @map("is_active")
+  articles        Article[]
+  customerTickets Ticket[]  @relation("CustomerTickets")
+  agentTickets    Ticket[]  @relation("AgentTickets")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("users")
@@ -55,4 +65,27 @@ model Article {
   @@index([status])
   @@index([isFaq])
   @@map("articles")
+}
+
+model Ticket {
+  id           String       @id @default(uuid())
+  ticketNumber Int          @unique @default(autoincrement()) @map("ticket_number")
+  title        String
+  description  String
+  status       TicketStatus @default(OPEN)
+  isDeleted    Boolean      @default(false) @map("is_deleted")
+  deletedAt    DateTime?    @map("deleted_at")
+  customerId   String       @map("customer_id")
+  customer     User         @relation("CustomerTickets", fields: [customerId], references: [id])
+  agentId      String?      @map("agent_id")
+  agent        User?        @relation("AgentTickets", fields: [agentId], references: [id])
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@index([customerId])
+  @@index([agentId])
+  @@index([status])
+  @@index([isDeleted])
+  @@index([createdAt])
+  @@map("tickets")
 }
