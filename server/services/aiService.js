@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const logger = require('../utils/logger');
+const { buildCategoryPriorityPrompt } = require('../prompts/categoryPriorityPrompt');
 
 // Gemini Model Configs
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -30,30 +31,7 @@ class AIService {
       }
 
       // 3. Compile prompt
-      const prompt = `
-You are an expert IT Helpdesk Ticket Classifier.
-Analyze the ticket details below and select the most appropriate Category and Priority.
-
-Approved Category List:
-${categoryNames.length > 0 ? categoryNames.join('\n') : 'General Support'}
-
-Approved Priority List:
-LOW
-MEDIUM
-HIGH
-URGENT
-
-You must output a structured JSON object ONLY. Do not wrap in markdown or backticks.
-Expected JSON Output Schema:
-{
-  "category": "Exactly one of the approved categories listed above, or null if none fit",
-  "priority": "Exactly one of: LOW, MEDIUM, HIGH, URGENT",
-  "reason": "A brief one-sentence reason explaining why this category and priority were selected"
-}
-
-Ticket Title: ${title}
-Ticket Description: ${description}
-`;
+      const prompt = buildCategoryPriorityPrompt(title, description, categoryNames);
 
       // 4. Call Gemini endpoint
       const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
