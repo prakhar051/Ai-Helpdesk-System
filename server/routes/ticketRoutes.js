@@ -23,6 +23,7 @@ router.post('/ai/analyze', ticketController.analyzeTicket);
 router.post('/ai/recommend-kb', ticketController.recommendKBArticles);
 router.post('/ai/summary', ticketController.generateTicketSummary);
 router.post('/ai/reply', ticketController.generateSuggestedReply);
+router.post('/ai/duplicates', ticketController.findDuplicateTickets);
 
 // Update status/descriptions
 router.patch('/:id', ticketController.updateTicket);

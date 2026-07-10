@@ -289,6 +289,37 @@ const generateSuggestedReply = async (req, res, next) => {
   }
 };
 
+// @desc    Find duplicate tickets using AI (Gemini)
+// @route   POST /api/v1/tickets/ai/duplicates
+// @access  Private
+const findDuplicateTickets = async (req, res, next) => {
+  try {
+    const parseResult = analyzeTicketSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: parseResult.error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      });
+    }
+
+    const duplicates = await aiService.findDuplicateTickets(
+      parseResult.data.title,
+      parseResult.data.description
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      data: { duplicates }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTickets,
   getTicket,
@@ -298,5 +329,6 @@ module.exports = {
   analyzeTicket,
   recommendKBArticles,
   generateTicketSummary,
-  generateSuggestedReply
+  generateSuggestedReply,
+  findDuplicateTickets
 };

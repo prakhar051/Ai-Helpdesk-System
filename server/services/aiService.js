@@ -4,6 +4,7 @@ const { buildCategoryPriorityPrompt } = require('../prompts/categoryPriorityProm
 const { buildKBRecommendationPrompt } = require('../prompts/knowledgeBaseRecommendationPrompt');
 const { buildTicketSummaryPrompt } = require('../prompts/ticketSummaryPrompt');
 const { buildSuggestedReplyPrompt } = require('../prompts/suggestedReplyPrompt');
+const { buildDuplicateTicketPrompt } = require('../prompts/duplicateTicketPrompt');
 
 // Gemini Model Configs
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -331,8 +332,106 @@ class AIService {
     };
   }
 
-  async detectDuplicate(ticketId) {
-    throw new Error('Not implemented. Reserved for future AI phases.');
+  /**
+   * Find duplicate tickets based on title/description keywords pre-filtering.
+   * @param {string} title - Ticket title.
+   * @param {string} description - Ticket description.
+   * @returns {Promise<object[]>} Similar tickets array.
+   */
+  async findDuplicateTickets(title, description) {
+    try {
+      // 1. Split title into keywords to perform case-insensitive pre-filtering in database
+      const words = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .split(/\s+/)
+        .filter(w => w.length >= 3);
+
+      const whereClause = {
+        isDeleted: false,
+        status: { in: ['OPEN', 'IN_PROGRESS', 'PENDING'] }
+      };
+
+      if (words.length > 0) {
+        whereClause.OR = words.map(w => ({
+          OR: [
+            { title: { contains: w, mode: 'insensitive' } },
+            { description: { contains: w, mode: 'insensitive' } }
+          ]
+        }));
+      }
+
+      const unresolvedTickets = await prisma.ticket.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          ticketNumber: true,
+          title: true,
+          description: true
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 100
+      });
+
+      // 2. If no unresolved tickets match pre-filter, return empty array immediately without calling Gemini
+      if (unresolvedTickets.length === 0) {
+        return [];
+      }
+
+      // 3. Fallback check for API key
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn('Gemini API key is missing. Returning empty duplicates list.');
+        return [];
+      }
+
+      // 4. Construct prompt using prompt builder
+      const prompt = buildDuplicateTicketPrompt({ title, description }, unresolvedTickets);
+
+      // 5. Query Gemini REST API
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google API request failed with status: ${response.status}`);
+      }
+
+      const responseBody = await response.json();
+      const rawText = responseBody?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!rawText) {
+        return [];
+      }
+
+      // 6. Handle malformed JSON response gracefully
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText.trim());
+      } catch (parseErr) {
+        logger.error(`Failed to parse Gemini duplicate detection output: ${parseErr.message}`);
+        return [];
+      }
+
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed;
+
+    } catch (err) {
+      logger.error(`AI duplicate ticket detection failed: ${err.message}`);
+      return [];
+    }
   }
 
   /**

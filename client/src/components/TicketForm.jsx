@@ -12,6 +12,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState(null);
   const [kbRecommendations, setKbRecommendations] = useState([]);
+  const [duplicates, setDuplicates] = useState([]);
   
   // Dynamic categories list
   const [categories, setCategories] = useState([]);
@@ -46,9 +47,10 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
     setAiLoading(true);
     setAiSuggestion(null);
     setKbRecommendations([]);
+    setDuplicates([]);
 
     try {
-      const [aiRes, kbRes] = await Promise.all([
+      const [aiRes, kbRes, dupRes] = await Promise.all([
         apiClient.post('/tickets/ai/analyze', {
           title: title.trim(),
           description: description.trim()
@@ -57,6 +59,13 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
           title: title.trim(),
           description: description.trim(),
           categoryId: categoryId === 'unassigned' ? null : categoryId
+        }),
+        apiClient.post('/tickets/ai/duplicates', {
+          title: title.trim(),
+          description: description.trim()
+        }).catch(err => {
+          console.error('Failed to query duplicate tickets:', err);
+          return { data: { status: 'success', data: { duplicates: [] } } };
         })
       ]);
 
@@ -65,6 +74,9 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
       }
       if (kbRes.data?.status === 'success') {
         setKbRecommendations(kbRes.data.data.recommendations || []);
+      }
+      if (dupRes.data?.status === 'success') {
+        setDuplicates(dupRes.data.data.duplicates || []);
       }
     } catch (err) {
       console.error('AI analysis request failed:', err);
@@ -255,6 +267,39 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {aiSuggestion && (
+          <div className="p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-3 text-xs animate-fadeIn">
+            <h4 className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+              ⚠ Similar Existing Tickets
+            </h4>
+            {duplicates.length > 0 ? (
+              <div className="space-y-2">
+                {duplicates.map(ticket => (
+                  <div key={ticket.ticketId} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between gap-3 animate-fadeIn">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-indigo-400 font-bold text-[10px]">{ticket.ticketNumber}</span>
+                        <h5 className="font-bold text-gray-200">{ticket.title}</h5>
+                      </div>
+                      <p className="text-gray-400 mt-1 italic">"{ticket.explanation}"</p>
+                    </div>
+                    <a
+                      href={`/tickets?id=${ticket.ticketId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[10px] rounded-lg transition whitespace-nowrap"
+                    >
+                      Open Ticket
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No similar tickets found.</p>
+            )}
           </div>
         )}
       </div>
