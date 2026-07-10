@@ -20,6 +20,7 @@ router.get('/:id', ticketController.getTicket);
 // Create tickets
 router.post('/', ticketController.createTicket);
 router.post('/ai/analyze', ticketController.analyzeTicket);
+router.post('/ai/recommend-kb', ticketController.recommendKBArticles);
 
 // Update status/descriptions
 router.patch('/:id', ticketController.updateTicket);

@@ -38,6 +38,29 @@ export default function Tickets() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  // AI KB Recommendations
+  const [kbRecs, setKbRecs] = useState([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+
+  const fetchKBRecommendations = async (ticket) => {
+    if (!ticket) return;
+    setRecsLoading(true);
+    try {
+      const response = await apiClient.post('/tickets/ai/recommend-kb', {
+        title: ticket.title,
+        description: ticket.description,
+        categoryId: ticket.categoryId
+      });
+      if (response.data?.status === 'success') {
+        setKbRecs(response.data.data.recommendations || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch KB recommendations:', err);
+    } finally {
+      setRecsLoading(false);
+    }
+  };
+
   // Fetch tickets list matching active filters
   const fetchTickets = async () => {
     setLoading(true);
@@ -111,11 +134,14 @@ export default function Tickets() {
   const handleSelectTicket = async (ticket) => {
     setError(null);
     setSuccess(null);
+    setKbRecs([]);
     try {
       const response = await apiClient.get(`/tickets/${ticket.id}`);
       if (response.data?.status === 'success') {
-        setSelectedTicket(response.data.data.ticket);
+        const fullTicket = response.data.data.ticket;
+        setSelectedTicket(fullTicket);
         setView('DETAIL');
+        fetchKBRecommendations(fullTicket);
       }
     } catch (err) {
       console.error('Failed to load ticket details:', err);
@@ -594,6 +620,34 @@ export default function Tickets() {
                     <p className="text-gray-300 leading-relaxed italic">
                       "{selectedTicket.aiReason}"
                     </p>
+                  </div>
+                )}
+
+                {/* AI KB Solutions Recommendations */}
+                {kbRecs.length > 0 && (
+                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block">📚 Recommended Articles</label>
+                    <div className="space-y-2">
+                      {kbRecs.map(art => (
+                        <div key={art.id} className="p-2.5 bg-white/5 border border-white/5 rounded-lg space-y-1">
+                          <h5 className="font-bold text-gray-200">{art.title}</h5>
+                          <p className="text-[9px] text-gray-500 uppercase">{art.categoryName}</p>
+                          <p className="text-gray-400 text-[10px] leading-relaxed italic">
+                            "{art.explanation}"
+                          </p>
+                          <div className="pt-1.5 flex justify-end">
+                            <a
+                              href={`/kb/${art.slug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="py-1 px-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[9px] rounded transition"
+                            >
+                              Open Article
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 

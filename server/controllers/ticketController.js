@@ -6,7 +6,8 @@ const logger = require('../utils/logger');
 // Input Validation Schemas
 const analyzeTicketSchema = z.object({
   title: z.string().trim().min(3, 'Title must be at least 3 characters'),
-  description: z.string().trim().min(10, 'Description must be at least 10 characters')
+  description: z.string().trim().min(10, 'Description must be at least 10 characters'),
+  categoryId: z.string().trim().nullable().optional()
 }).strict();
 
 const createTicketSchema = z.object({
@@ -190,11 +191,44 @@ const analyzeTicket = async (req, res, next) => {
   }
 };
 
+// @desc    Recommend Knowledge Base articles using AI (Gemini)
+// @route   POST /api/v1/tickets/ai/recommend-kb
+// @access  Private
+const recommendKBArticles = async (req, res, next) => {
+  try {
+    const parseResult = analyzeTicketSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: parseResult.error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      });
+    }
+
+    const recommendations = await aiService.recommendKnowledgeBase(
+      parseResult.data.title,
+      parseResult.data.description,
+      req.body.categoryId
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      data: { recommendations }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTickets,
   getTicket,
   createTicket,
   updateTicket,
   deleteTicket,
-  analyzeTicket
+  analyzeTicket,
+  recommendKBArticles
 };

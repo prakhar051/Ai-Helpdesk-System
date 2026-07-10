@@ -11,6 +11,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
   // AI suggestions state hooks
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [kbRecommendations, setKbRecommendations] = useState([]);
   
   // Dynamic categories list
   const [categories, setCategories] = useState([]);
@@ -44,14 +45,26 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
     setError(null);
     setAiLoading(true);
     setAiSuggestion(null);
+    setKbRecommendations([]);
 
     try {
-      const response = await apiClient.post('/tickets/ai/analyze', {
-        title: title.trim(),
-        description: description.trim()
-      });
-      if (response.data?.status === 'success') {
-        setAiSuggestion(response.data.data);
+      const [aiRes, kbRes] = await Promise.all([
+        apiClient.post('/tickets/ai/analyze', {
+          title: title.trim(),
+          description: description.trim()
+        }),
+        apiClient.post('/tickets/ai/recommend-kb', {
+          title: title.trim(),
+          description: description.trim(),
+          categoryId: categoryId === 'unassigned' ? null : categoryId
+        })
+      ]);
+
+      if (aiRes.data?.status === 'success') {
+        setAiSuggestion(aiRes.data.data);
+      }
+      if (kbRes.data?.status === 'success') {
+        setKbRecommendations(kbRes.data.data.recommendations || []);
       }
     } catch (err) {
       console.error('AI analysis request failed:', err);
@@ -214,6 +227,33 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
               >
                 Ignore
               </button>
+            </div>
+          </div>
+        )}
+
+        {kbRecommendations.length > 0 && (
+          <div className="p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-3 text-xs animate-fadeIn">
+            <h4 className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+              📚 Suggested Knowledge Base Solutions
+            </h4>
+            <div className="space-y-2">
+              {kbRecommendations.map(art => (
+                <div key={art.id} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between gap-3">
+                  <div>
+                    <h5 className="font-bold text-gray-200">{art.title}</h5>
+                    <p className="text-[10px] text-gray-500">{art.categoryName}</p>
+                    <p className="text-gray-400 mt-1 italic">"{art.explanation}"</p>
+                  </div>
+                  <a
+                    href={`/kb/${art.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[10px] rounded-lg transition whitespace-nowrap"
+                  >
+                    Open Article
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         )}
