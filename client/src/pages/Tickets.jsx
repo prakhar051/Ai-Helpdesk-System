@@ -62,6 +62,35 @@ export default function Tickets() {
     }
   };
 
+  // AI Suggested Replies
+  const [suggestedReply, setSuggestedReply] = useState('');
+  const [replyLoading, setReplyLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerateReply = async () => {
+    if (!selectedTicket) return;
+    setReplyLoading(true);
+    setCopied(false);
+    try {
+      const response = await apiClient.post('/tickets/ai/reply', { ticketId: selectedTicket.id });
+      if (response.data?.status === 'success') {
+        setSuggestedReply(response.data.data.reply);
+      }
+    } catch (err) {
+      console.error('Failed to generate suggested reply:', err);
+      setSuggestedReply('AI reply is currently unavailable.');
+    } finally {
+      setReplyLoading(false);
+    }
+  };
+
+  const handleCopyReply = () => {
+    if (!suggestedReply) return;
+    navigator.clipboard.writeText(suggestedReply);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const fetchKBRecommendations = async (ticket) => {
     if (!ticket) return;
     setRecsLoading(true);
@@ -157,6 +186,9 @@ export default function Tickets() {
     setKbRecs([]);
     setTicketSummary('');
     setSummaryLoading(false);
+    setSuggestedReply('');
+    setReplyLoading(false);
+    setCopied(false);
     try {
       const response = await apiClient.get(`/tickets/${ticket.id}`);
       if (response.data?.status === 'success') {
@@ -700,6 +732,57 @@ export default function Tickets() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* AI Suggested Reply block for support staff */}
+                {user?.role !== 'CUSTOMER' && (
+                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] text-gray-500 uppercase font-bold block">✨ AI Suggested Reply</label>
+                      {copied && (
+                        <span className="text-[9px] text-green-400 font-semibold animate-pulse">Copied!</span>
+                      )}
+                    </div>
+                    {replyLoading ? (
+                      <div className="flex items-center gap-2 text-gray-400 italic">
+                        <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                        Generating reply draft...
+                      </div>
+                    ) : suggestedReply ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={suggestedReply}
+                          onChange={(e) => setSuggestedReply(e.target.value)}
+                          rows={4}
+                          className="w-full bg-[#161C2C] border border-white/10 rounded-xl p-2.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCopyReply}
+                            className="flex-1 py-1 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition"
+                          >
+                            Copy Reply
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleGenerateReply}
+                            className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[10px] transition"
+                          >
+                            Regenerate
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleGenerateReply}
+                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                      >
+                        Generate Reply
+                      </button>
+                    )}
                   </div>
                 )}
 
