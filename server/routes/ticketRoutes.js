@@ -21,6 +21,7 @@ router.get('/:id', ticketController.getTicket);
 router.post('/', ticketController.createTicket);
 router.post('/ai/analyze', ticketController.analyzeTicket);
 router.post('/ai/recommend-kb', ticketController.recommendKBArticles);
+router.post('/ai/summary', ticketController.generateTicketSummary);
 
 // Update status/descriptions
 router.patch('/:id', ticketController.updateTicket);

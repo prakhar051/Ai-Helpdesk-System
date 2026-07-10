@@ -2,6 +2,7 @@ const prisma = require('../config/prisma');
 const logger = require('../utils/logger');
 const { buildCategoryPriorityPrompt } = require('../prompts/categoryPriorityPrompt');
 const { buildKBRecommendationPrompt } = require('../prompts/knowledgeBaseRecommendationPrompt');
+const { buildTicketSummaryPrompt } = require('../prompts/ticketSummaryPrompt');
 
 // Gemini Model Configs
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -97,8 +98,113 @@ class AIService {
   // FUTURE CAPABILITIES ABSTRACTIONS
   // ==========================================
 
-  async generateSummary(ticketId) {
-    throw new Error('Not implemented. Reserved for future AI phases.');
+  /**
+   * Generate a summary of a ticket and its comments thread.
+   * @param {string} ticketId - Ticket ID.
+   * @param {object} user - Requesting user.
+   * @returns {Promise<object>} Summary output.
+   */
+  async generateTicketSummary(ticketId, user) {
+    try {
+      // 1. Fetch ticket and comments (limit comments to latest 50 to keep prompt compact)
+      const ticket = await prisma.ticket.findFirst({
+        where: { id: ticketId, isDeleted: false },
+        include: {
+          category: true,
+          agent: { select: { name: true } },
+          comments: {
+            include: {
+              author: { select: { name: true, role: true } }
+            },
+            orderBy: { createdAt: 'desc' }, // Fetch latest comments first
+            take: 50
+          }
+        }
+      });
+
+      if (!ticket) {
+        const error = new Error('Ticket not found');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Enforce customer access checks
+      if (user.role === 'CUSTOMER' && ticket.customerId !== user.id) {
+        const error = new Error('You do not have permission to generate a summary for this ticket.');
+        error.statusCode = 403;
+        throw error;
+      }
+
+      // Restore chronological order of comments
+      const comments = ticket.comments.reverse();
+
+      // 2. Fallback check for API key
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn('Gemini API key is missing. Returning fallback summary.');
+        return this._getSummaryFallback('AI configuration error.');
+      }
+
+      // 3. Compile prompt using prompt builder
+      const prompt = buildTicketSummaryPrompt({
+        title: ticket.title,
+        description: ticket.description,
+        status: ticket.status,
+        priority: ticket.priority,
+        categoryName: ticket.category ? ticket.category.name : 'Uncategorized',
+        agentName: ticket.agent ? ticket.agent.name : 'Unassigned'
+      }, comments);
+
+      // 4. Query Gemini REST API
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google API request failed with status: ${response.status}`);
+      }
+
+      const responseBody = await response.json();
+      const rawText = responseBody?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!rawText) {
+        return this._getSummaryFallback('Empty response from AI.');
+      }
+
+      // 5. Handle malformed JSON response gracefully
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText.trim());
+      } catch (parseErr) {
+        logger.error(`Failed to parse Gemini summary output: ${parseErr.message}`);
+        return this._getSummaryFallback('Failed to parse AI output.');
+      }
+
+      return {
+        summary: parsed.summary || 'AI summary could not be extracted.'
+      };
+
+    } catch (err) {
+      logger.error(`AI ticket summarization failed: ${err.message}`);
+      // Throw 404/403 errors directly, catch other AI connection failures
+      if (err.statusCode) throw err;
+      return this._getSummaryFallback(err.message);
+    }
+  }
+
+  _getSummaryFallback(errorMsg) {
+    return {
+      summary: 'AI summary is currently unavailable.'
+    };
   }
 
   async suggestReply(ticketId) {

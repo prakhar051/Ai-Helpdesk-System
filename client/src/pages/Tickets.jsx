@@ -42,6 +42,26 @@ export default function Tickets() {
   const [kbRecs, setKbRecs] = useState([]);
   const [recsLoading, setRecsLoading] = useState(false);
 
+  // AI Ticket Summarization
+  const [ticketSummary, setTicketSummary] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  const handleGenerateSummary = async () => {
+    if (!selectedTicket) return;
+    setSummaryLoading(true);
+    try {
+      const response = await apiClient.post('/tickets/ai/summary', { ticketId: selectedTicket.id });
+      if (response.data?.status === 'success') {
+        setTicketSummary(response.data.data.summary);
+      }
+    } catch (err) {
+      console.error('Failed to generate summary:', err);
+      setTicketSummary('AI summary is currently unavailable.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   const fetchKBRecommendations = async (ticket) => {
     if (!ticket) return;
     setRecsLoading(true);
@@ -135,6 +155,8 @@ export default function Tickets() {
     setError(null);
     setSuccess(null);
     setKbRecs([]);
+    setTicketSummary('');
+    setSummaryLoading(false);
     try {
       const response = await apiClient.get(`/tickets/${ticket.id}`);
       if (response.data?.status === 'success') {
@@ -498,7 +520,37 @@ export default function Tickets() {
                     </button>
                   </div>
                 )}
-
+                {/* AI Summary card */}
+                <div className="p-5 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl space-y-3 text-xs leading-relaxed">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">
+                      ✨ AI Ticket Summary
+                    </strong>
+                    {!ticketSummary && !summaryLoading && (
+                      <button
+                        onClick={handleGenerateSummary}
+                        className="py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition shadow-md shadow-indigo-600/10"
+                      >
+                        Generate Summary
+                      </button>
+                    )}
+                  </div>
+                  
+                  {summaryLoading ? (
+                    <div className="flex items-center gap-2 text-gray-400 italic">
+                      <div className="w-3.5 h-3.5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                      Summarizing discussion thread...
+                    </div>
+                  ) : ticketSummary ? (
+                    <p className="text-gray-300 font-sans">
+                      {ticketSummary}
+                    </p>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Generate a quick AI summary of the ticket conversation thread.
+                    </p>
+                  )}
+                </div>
                 {/* Ticket Collaboration: Comments & Attachments Sections */}
                 <CommentSection ticketId={selectedTicket.id} />
                 <AttachmentSection ticketId={selectedTicket.id} />
