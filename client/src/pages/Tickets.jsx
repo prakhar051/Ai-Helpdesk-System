@@ -91,6 +91,32 @@ export default function Tickets() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // AI Sentiment Analysis
+  const [sentiment, setSentiment] = useState(null);
+  const [sentimentLoading, setSentimentLoading] = useState(false);
+
+  const handleAnalyzeSentiment = async () => {
+    if (!selectedTicket) return;
+    setSentimentLoading(true);
+    try {
+      const response = await apiClient.post('/tickets/ai/sentiment', { ticketId: selectedTicket.id });
+      if (response.data?.status === 'success') {
+        setSentiment(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to analyze sentiment:', err);
+      setSentiment({
+        sentiment: 'UNKNOWN',
+        confidence: 0,
+        emotion: 'Unknown',
+        summary: 'AI sentiment analysis is currently unavailable.',
+        agentAdvice: ''
+      });
+    } finally {
+      setSentimentLoading(false);
+    }
+  };
+
   const fetchKBRecommendations = async (ticket) => {
     if (!ticket) return;
     setRecsLoading(true);
@@ -189,6 +215,8 @@ export default function Tickets() {
     setSuggestedReply('');
     setReplyLoading(false);
     setCopied(false);
+    setSentiment(null);
+    setSentimentLoading(false);
     try {
       const response = await apiClient.get(`/tickets/${ticket.id}`);
       if (response.data?.status === 'success') {
@@ -785,6 +813,78 @@ export default function Tickets() {
                     )}
                   </div>
                 )}
+
+                {/* AI Sentiment Analysis block */}
+                <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
+                  <label className="text-[10px] text-gray-500 uppercase font-bold block">😊 AI Sentiment Analysis</label>
+                  {sentimentLoading ? (
+                    <div className="flex items-center gap-2 text-gray-400 italic">
+                      <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                      Analyzing customer sentiment...
+                    </div>
+                  ) : sentiment ? (
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-medium">Sentiment Status:</span>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          sentiment.sentiment === 'POSITIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          sentiment.sentiment === 'NEUTRAL' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                          sentiment.sentiment === 'NEGATIVE' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                          'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                        }`}>
+                          {sentiment.sentiment === 'POSITIVE' ? '🟢 POSITIVE' :
+                           sentiment.sentiment === 'NEUTRAL' ? '🟡 NEUTRAL' :
+                           sentiment.sentiment === 'NEGATIVE' ? '🔴 NEGATIVE' :
+                           '⚪ UNKNOWN'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-medium">Confidence Score:</span>
+                        <span className="font-bold text-gray-200">{sentiment.confidence}%</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-medium">Dominant Emotion:</span>
+                        <span className="font-bold text-gray-200">{sentiment.emotion}</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-gray-400 font-medium block">Analysis Summary:</span>
+                        <p className="text-gray-300 leading-relaxed italic bg-white/5 p-2 rounded-lg border border-white/5">
+                          "{sentiment.summary}"
+                        </p>
+                      </div>
+
+                      {sentiment.agentAdvice && (
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-indigo-400 font-medium block">Recommended Agent Approach:</span>
+                          <p className="text-gray-300 leading-relaxed bg-indigo-500/5 p-2 rounded-lg border border-indigo-500/10 font-sans">
+                            {sentiment.agentAdvice}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleAnalyzeSentiment}
+                          className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[9px] rounded-lg transition"
+                        >
+                          Re-Analyze
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleAnalyzeSentiment}
+                      className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                    >
+                      Analyze Sentiment
+                    </button>
+                  )}
+                </div>
 
                 {/* Soft Delete widget for ADMIN */}
                 {user?.role === 'ADMIN' && (

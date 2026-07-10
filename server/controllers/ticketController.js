@@ -320,6 +320,39 @@ const findDuplicateTickets = async (req, res, next) => {
   }
 };
 
+// @desc    Analyze Ticket Sentiment using AI (Gemini)
+// @route   POST /api/v1/tickets/ai/sentiment
+// @access  Private
+const analyzeTicketSentiment = async (req, res, next) => {
+  try {
+    const sentimentSchema = z.object({
+      ticketId: z.string().uuid('Invalid ticket ID format')
+    }).strict();
+
+    const parseResult = sentimentSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: parseResult.error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      });
+    }
+
+    const result = await aiService.analyzeTicketSentiment(parseResult.data.ticketId, req.user);
+    logger.info(`AI Sentiment analyzed for ticket ${parseResult.data.ticketId} by ${req.user.email}`);
+
+    return res.status(200).json({
+      status: 'success',
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTickets,
   getTicket,
@@ -330,5 +363,6 @@ module.exports = {
   recommendKBArticles,
   generateTicketSummary,
   generateSuggestedReply,
-  findDuplicateTickets
+  findDuplicateTickets,
+  analyzeTicketSentiment
 };

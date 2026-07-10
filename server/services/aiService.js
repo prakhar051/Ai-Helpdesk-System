@@ -5,6 +5,7 @@ const { buildKBRecommendationPrompt } = require('../prompts/knowledgeBaseRecomme
 const { buildTicketSummaryPrompt } = require('../prompts/ticketSummaryPrompt');
 const { buildSuggestedReplyPrompt } = require('../prompts/suggestedReplyPrompt');
 const { buildDuplicateTicketPrompt } = require('../prompts/duplicateTicketPrompt');
+const { buildTicketSentimentPrompt } = require('../prompts/ticketSentimentPrompt');
 
 // Gemini Model Configs
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -539,6 +540,122 @@ class AIService {
       logger.error(`AI KB recommendation failed: ${err.message}`);
       return [];
     }
+  }
+
+  /**
+   * Analyze the customer's sentiment for a support ticket.
+   * @param {string} ticketId - Ticket ID.
+   * @param {object} user - Requesting user.
+   * @returns {Promise<object>} Sentiment analysis output.
+   */
+  async analyzeTicketSentiment(ticketId, user) {
+    try {
+      // 1. Fetch ticket and comments
+      const ticket = await prisma.ticket.findFirst({
+        where: { id: ticketId, isDeleted: false },
+        include: {
+          comments: {
+            where: {
+              author: {
+                role: 'CUSTOMER'
+              }
+            },
+            include: {
+              author: { select: { name: true, role: true } }
+            },
+            orderBy: { createdAt: 'desc' }, // Fetch latest CUSTOMER comments first
+            take: 20
+          }
+        }
+      });
+
+      if (!ticket) {
+        const error = new Error('Ticket not found');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Enforce access control checks: ADMIN, AGENT, or Ticket Owner (CUSTOMER)
+      if (user.role === 'CUSTOMER' && ticket.customerId !== user.id) {
+        const error = new Error('You do not have permission to analyze sentiment for this ticket.');
+        error.statusCode = 403;
+        throw error;
+      }
+
+      // Restore chronological order of customer comments
+      const customerComments = ticket.comments.reverse();
+
+      // 2. Fallback check for API key
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn('Gemini API key is missing. Returning fallback sentiment analysis.');
+        return this._getSentimentFallback();
+      }
+
+      // 3. Compile prompt using prompt builder
+      const prompt = buildTicketSentimentPrompt({
+        title: ticket.title,
+        description: ticket.description
+      }, customerComments);
+
+      // 4. Query Gemini REST API
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google API request failed with status: ${response.status}`);
+      }
+
+      const responseBody = await response.json();
+      const rawText = responseBody?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!rawText) {
+        return this._getSentimentFallback();
+      }
+
+      // 5. Handle malformed JSON response gracefully
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText.trim());
+      } catch (parseErr) {
+        logger.error(`Failed to parse Gemini sentiment output: ${parseErr.message}`);
+        return this._getSentimentFallback();
+      }
+
+      return {
+        sentiment: parsed.sentiment || 'UNKNOWN',
+        confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
+        emotion: parsed.emotion || 'Unknown',
+        summary: parsed.summary || 'AI sentiment analysis is currently unavailable.',
+        agentAdvice: parsed.agentAdvice || ''
+      };
+
+    } catch (err) {
+      logger.error(`AI ticket sentiment analysis failed: ${err.message}`);
+      // Throw 404/403 errors directly, catch other AI connection failures
+      if (err.statusCode) throw err;
+      return this._getSentimentFallback();
+    }
+  }
+
+  _getSentimentFallback() {
+    return {
+      sentiment: 'UNKNOWN',
+      confidence: 0,
+      emotion: 'Unknown',
+      summary: 'AI sentiment analysis is currently unavailable.',
+      agentAdvice: ''
+    };
   }
 }
 
