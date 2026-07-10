@@ -1,13 +1,20 @@
 const { z } = require('zod');
 const ticketService = require('../services/ticketService');
+const aiService = require('../services/aiService');
 const logger = require('../utils/logger');
 
 // Input Validation Schemas
+const analyzeTicketSchema = z.object({
+  title: z.string().trim().min(3, 'Title must be at least 3 characters'),
+  description: z.string().trim().min(10, 'Description must be at least 10 characters')
+}).strict();
+
 const createTicketSchema = z.object({
   title: z.string().trim().min(3, 'Title must be at least 3 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  categoryId: z.string().trim().nullable().optional()
+  categoryId: z.string().trim().nullable().optional(),
+  aiReason: z.string().trim().nullable().optional()
 }).strict();
 
 const updateTicketSchema = z.object({
@@ -16,6 +23,7 @@ const updateTicketSchema = z.object({
   status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING', 'RESOLVED', 'CLOSED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   categoryId: z.string().trim().nullable().optional(),
+  aiReason: z.string().trim().nullable().optional(),
   agentId: z.string().trim().nullable().optional()
 }).strict();
 
@@ -155,10 +163,38 @@ const deleteTicket = async (req, res, next) => {
   }
 };
 
+// @desc    Analyze ticket content using AI (Gemini)
+// @route   POST /api/v1/tickets/ai/analyze
+// @access  Private
+const analyzeTicket = async (req, res, next) => {
+  try {
+    const parseResult = analyzeTicketSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: parseResult.error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      });
+    }
+
+    const result = await aiService.predictCategoryPriority(parseResult.data.title, parseResult.data.description);
+    return res.status(200).json({
+      status: 'success',
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTickets,
   getTicket,
   createTicket,
   updateTicket,
-  deleteTicket
+  deleteTicket,
+  analyzeTicket
 };

@@ -93,6 +93,7 @@ model Ticket {
   category     Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   comments     Comment[]
   attachments  Attachment[]
+  aiReason     String?      @map("ai_reason")
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 

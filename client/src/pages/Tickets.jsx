@@ -587,6 +587,16 @@ export default function Tickets() {
                   )}
                 </div>
 
+                {/* AI Reason explanation */}
+                {selectedTicket.aiReason && (
+                  <div className="space-y-2 p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-xs">
+                    <label className="text-[10px] text-indigo-400 uppercase font-bold block">✨ AI Recommendation Context</label>
+                    <p className="text-gray-300 leading-relaxed italic">
+                      "{selectedTicket.aiReason}"
+                    </p>
+                  </div>
+                )}
+
                 {/* Soft Delete widget for ADMIN */}
                 {user?.role === 'ADMIN' && (
                   <div className="pt-4 border-t border-white/5">

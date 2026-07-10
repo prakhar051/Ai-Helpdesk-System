@@ -14,6 +14,7 @@ const createTicket = async (customerId, data) => {
       status: 'OPEN',
       priority: data.priority || 'MEDIUM',
       categoryId: data.categoryId === 'unassigned' ? null : (data.categoryId || null),
+      aiReason: data.aiReason || null,
       customerId
     },
     include: {
@@ -106,12 +107,14 @@ const updateTicket = async (id, user, updateData) => {
     if (updateData.title !== undefined) finalUpdates.title = updateData.title;
     if (updateData.description !== undefined) finalUpdates.description = updateData.description;
     if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
+    if (updateData.aiReason !== undefined) finalUpdates.aiReason = updateData.aiReason;
 
   } else if (user.role === 'AGENT') {
     // Agents can change status, priority, and categories. They cannot change description.
     if (updateData.status !== undefined) finalUpdates.status = updateData.status;
     if (updateData.priority !== undefined) finalUpdates.priority = updateData.priority;
     if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
+    if (updateData.aiReason !== undefined) finalUpdates.aiReason = updateData.aiReason;
     
     if (updateData.agentId !== undefined) {
       const targetAgentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
@@ -138,6 +141,7 @@ const updateTicket = async (id, user, updateData) => {
     if (updateData.priority !== undefined) finalUpdates.priority = updateData.priority;
     if (updateData.categoryId !== undefined) finalUpdates.categoryId = updateData.categoryId === 'unassigned' ? null : updateData.categoryId;
     if (updateData.agentId !== undefined) finalUpdates.agentId = updateData.agentId === 'unassigned' ? null : updateData.agentId;
+    if (updateData.aiReason !== undefined) finalUpdates.aiReason = updateData.aiReason;
   }
 
   const updateWhere = { id };
