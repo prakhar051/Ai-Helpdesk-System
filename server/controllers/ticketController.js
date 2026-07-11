@@ -353,6 +353,39 @@ const analyzeTicketSentiment = async (req, res, next) => {
   }
 };
 
+// @desc    Recommend Agent Assignment using AI (Gemini)
+// @route   POST /api/v1/tickets/ai/assign
+// @access  Private
+const recommendAgentAssignment = async (req, res, next) => {
+  try {
+    const assignmentSchema = z.object({
+      ticketId: z.string().uuid('Invalid ticket ID format')
+    }).strict();
+
+    const parseResult = assignmentSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: parseResult.error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      });
+    }
+
+    const result = await aiService.recommendAgentAssignment(parseResult.data.ticketId, req.user);
+    logger.info(`AI Agent Assignment recommended for ticket ${parseResult.data.ticketId} by ${req.user.email}`);
+
+    return res.status(200).json({
+      status: 'success',
+      data: { recommendation: result }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTickets,
   getTicket,
@@ -364,5 +397,6 @@ module.exports = {
   generateTicketSummary,
   generateSuggestedReply,
   findDuplicateTickets,
-  analyzeTicketSentiment
+  analyzeTicketSentiment,
+  recommendAgentAssignment
 };

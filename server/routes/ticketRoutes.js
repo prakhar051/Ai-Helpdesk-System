@@ -25,6 +25,7 @@ router.post('/ai/summary', ticketController.generateTicketSummary);
 router.post('/ai/reply', ticketController.generateSuggestedReply);
 router.post('/ai/duplicates', ticketController.findDuplicateTickets);
 router.post('/ai/sentiment', ticketController.analyzeTicketSentiment);
+router.post('/ai/assign', ticketController.recommendAgentAssignment);
 
 // Update status/descriptions
 router.patch('/:id', ticketController.updateTicket);

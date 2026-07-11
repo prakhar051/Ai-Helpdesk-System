@@ -117,6 +117,51 @@ export default function Tickets() {
     }
   };
 
+  // AI Agent Assignment Recommendation
+  const [assignmentRec, setAssignmentRec] = useState(null);
+  const [assignmentLoading, setAssignmentLoading] = useState(false);
+
+  const handleRecommendAssignment = async () => {
+    if (!selectedTicket) return;
+    setAssignmentLoading(true);
+    try {
+      const response = await apiClient.post('/tickets/ai/assign', { ticketId: selectedTicket.id });
+      if (response.data?.status === 'success') {
+        setAssignmentRec(response.data.data.recommendation);
+      }
+    } catch (err) {
+      console.error('Failed to get agent recommendation:', err);
+      setAssignmentRec({
+        recommendedAgentId: null,
+        recommendedAgentName: null,
+        confidence: 0,
+        reason: 'AI agent assignment recommendation is currently unavailable.'
+      });
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+
+  const handleAssignAgent = async (agentId) => {
+    if (!selectedTicket || !agentId) return;
+    setFormLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await apiClient.patch(`/tickets/${selectedTicket.id}`, { agentId });
+      if (response.data?.status === 'success') {
+        setSuccess('Support ticket successfully assigned to agent.');
+        setSelectedTicket(response.data.data.ticket);
+        setAssignmentRec(null); // Clear recommendation on success
+      }
+    } catch (err) {
+      console.error('Failed to assign agent:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to update assignee.');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   const fetchKBRecommendations = async (ticket) => {
     if (!ticket) return;
     setRecsLoading(true);
@@ -217,6 +262,8 @@ export default function Tickets() {
     setCopied(false);
     setSentiment(null);
     setSentimentLoading(false);
+    setAssignmentRec(null);
+    setAssignmentLoading(false);
     try {
       const response = await apiClient.get(`/tickets/${ticket.id}`);
       if (response.data?.status === 'success') {
@@ -885,6 +932,70 @@ export default function Tickets() {
                     </button>
                   )}
                 </div>
+
+                {/* AI Agent Assignment Recommendation block (ADMIN and AGENT only) */}
+                {user?.role !== 'CUSTOMER' && (
+                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block">✨ AI Assignment Recommendation</label>
+                    {assignmentLoading ? (
+                      <div className="flex items-center gap-2 text-gray-400 italic">
+                        <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                        Generating routing recommendation...
+                      </div>
+                    ) : assignmentRec ? (
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-gray-400 font-medium">Recommended Agent:</span>
+                          <span className="font-bold text-gray-200">
+                            {assignmentRec.recommendedAgentName || 'No agents available'}
+                          </span>
+                        </div>
+
+                        {assignmentRec.recommendedAgentName && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-gray-400 font-medium">Confidence Score:</span>
+                            <span className="font-bold text-indigo-400">{assignmentRec.confidence}%</span>
+                          </div>
+                        )}
+
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-gray-400 font-medium block">Match Reason:</span>
+                          <p className="text-gray-300 leading-relaxed bg-white/5 p-2 rounded-lg border border-white/5 italic">
+                            "{assignmentRec.reason}"
+                          </p>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            type="button"
+                            onClick={handleRecommendAssignment}
+                            className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[9px] rounded-lg transition"
+                          >
+                            Refresh
+                          </button>
+                          {user?.role === 'ADMIN' && assignmentRec.recommendedAgentId && (
+                            <button
+                              type="button"
+                              onClick={() => handleAssignAgent(assignmentRec.recommendedAgentId)}
+                              disabled={formLoading}
+                              className="py-1 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[9px] rounded-lg transition disabled:opacity-50"
+                            >
+                              Assign Recommended Agent
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleRecommendAssignment}
+                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                      >
+                        Recommend Agent Assignment
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Soft Delete widget for ADMIN */}
                 {user?.role === 'ADMIN' && (

@@ -6,6 +6,7 @@ const { buildTicketSummaryPrompt } = require('../prompts/ticketSummaryPrompt');
 const { buildSuggestedReplyPrompt } = require('../prompts/suggestedReplyPrompt');
 const { buildDuplicateTicketPrompt } = require('../prompts/duplicateTicketPrompt');
 const { buildTicketSentimentPrompt } = require('../prompts/ticketSentimentPrompt');
+const { buildAgentAssignmentPrompt } = require('../prompts/agentAssignmentPrompt');
 
 // Gemini Model Configs
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -648,6 +649,161 @@ class AIService {
     }
   }
 
+  /**
+   * Recommends the best agent assignment for a support ticket.
+   * @param {string} ticketId - Target ticket ID.
+   * @param {object} requestingUser - User requesting the recommendation.
+   * @returns {Promise<object>} Recommended agent assignment details.
+   */
+  async recommendAgentAssignment(ticketId, requestingUser) {
+    try {
+      // 1. Fetch ticket and its category details
+      const ticket = await prisma.ticket.findFirst({
+        where: { id: ticketId, isDeleted: false },
+        include: {
+          category: { select: { name: true } }
+        }
+      });
+
+      if (!ticket) {
+        const error = new Error('Ticket not found');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Enforce RBAC checks: ADMIN or AGENT only.
+      if (requestingUser.role !== 'ADMIN' && requestingUser.role !== 'AGENT') {
+        const error = new Error('You do not have permission to view agent assignment recommendations.');
+        error.statusCode = 403;
+        throw error;
+      }
+
+      // 2. Fetch all active agents (ADMIN and AGENT roles, isActive is true)
+      const activeAgents = await prisma.user.findMany({
+        where: {
+          role: { in: ['AGENT', 'ADMIN'] },
+          isActive: true
+        },
+        select: {
+          id: true,
+          name: true
+        }
+      });
+
+      if (activeAgents.length === 0) {
+        return this._getAssignmentFallback("No active support agents are currently available to accept assignments.");
+      }
+
+      // 3. For each active agent, dynamically query:
+      // - Current Workload (active count of tickets in OPEN / IN_PROGRESS status)
+      // - Category Expertise (historical count of resolved tickets grouped by category)
+      const agentsWithMetrics = await Promise.all(
+        activeAgents.map(async (agent) => {
+          const [activeCount, resolvedGroups] = await Promise.all([
+            prisma.ticket.count({
+              where: {
+                agentId: agent.id,
+                status: { in: ['OPEN', 'IN_PROGRESS'] },
+                isDeleted: false
+              }
+            }),
+            prisma.ticket.groupBy({
+              by: ['categoryId'],
+              where: {
+                agentId: agent.id,
+                status: 'RESOLVED',
+                isDeleted: false,
+                categoryId: { not: null }
+              },
+              _count: true
+            })
+          ]);
+
+          // Fetch category names to populate expertise list
+          const resolvedCategoryIds = resolvedGroups.map(g => g.categoryId);
+          const categoriesList = await prisma.category.findMany({
+            where: { id: { in: resolvedCategoryIds } },
+            select: { id: true, name: true }
+          });
+          const categoryNameMap = new Map(categoriesList.map(c => [c.id, c.name]));
+
+          const expertise = resolvedGroups.map(g => ({
+            name: categoryNameMap.get(g.categoryId) || 'General Support',
+            count: g._count
+          }));
+
+          return {
+            id: agent.id,
+            name: agent.name,
+            workload: activeCount,
+            expertise
+          };
+        })
+      );
+
+      // 4. Fallback check for Gemini API key
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn('Gemini API key is missing. Returning fallback agent assignment.');
+        return this._getAssignmentFallback('AI agent assignment recommendation is currently unavailable due to missing API configurations.');
+      }
+
+      // 5. Compile prompt
+      const prompt = buildAgentAssignmentPrompt({
+        title: ticket.title,
+        description: ticket.description,
+        category: ticket.category?.name || 'Uncategorized',
+        priority: ticket.priority
+      }, agentsWithMetrics);
+
+      // 6. Query Gemini REST API
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google API request failed with status: ${response.status}`);
+      }
+
+      const responseBody = await response.json();
+      const rawText = responseBody?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!rawText) {
+        return this._getAssignmentFallback();
+      }
+
+      // 7. Parse response JSON safely
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText.trim());
+      } catch (parseErr) {
+        logger.error(`Failed to parse Gemini assignment output: ${parseErr.message}`);
+        return this._getAssignmentFallback();
+      }
+
+      return {
+        recommendedAgentId: parsed.recommendedAgentId || null,
+        recommendedAgentName: parsed.recommendedAgentName || null,
+        confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0,
+        reason: parsed.reason || 'AI agent assignment recommendation completed.'
+      };
+
+    } catch (err) {
+      logger.error(`AI agent assignment recommendation failed: ${err.message}`);
+      if (err.statusCode) throw err;
+      return this._getAssignmentFallback();
+    }
+  }
+
   _getSentimentFallback() {
     return {
       sentiment: 'UNKNOWN',
@@ -655,6 +811,15 @@ class AIService {
       emotion: 'Unknown',
       summary: 'AI sentiment analysis is currently unavailable.',
       agentAdvice: ''
+    };
+  }
+
+  _getAssignmentFallback(customReason = 'AI agent assignment recommendation is currently unavailable.') {
+    return {
+      recommendedAgentId: null,
+      recommendedAgentName: null,
+      confidence: 0,
+      reason: customReason
     };
   }
 }
