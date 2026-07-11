@@ -30,6 +30,17 @@ const createTicket = async (customerId, data) => {
     }
   });
 
+  // Asynchronously send email notifications
+  process.nextTick(async () => {
+    try {
+      const emailService = require('./emailService');
+      await emailService.sendTicketCreatedEmail(ticket);
+    } catch (err) {
+      const logger = require('../utils/logger');
+      logger.error(`Failed to trigger email notification callbacks in createTicket: ${err.message}`);
+    }
+  });
+
   return ticket;
 };
 
@@ -177,6 +188,34 @@ const updateTicket = async (id, user, updateData) => {
     }
     throw err;
   }
+
+  // Asynchronously send email notifications
+  const oldStatus = ticket.status;
+  const oldAgentId = ticket.agentId;
+  process.nextTick(async () => {
+    try {
+      const emailService = require('./emailService');
+      
+      // 1. Check for Assignment changes
+      if (updated.agentId && updated.agentId !== oldAgentId) {
+        await emailService.sendTicketAssignmentEmail(updated);
+      }
+      
+      // 2. Check for Status changes
+      if (updated.status !== oldStatus) {
+        if (updated.status === 'RESOLVED') {
+          await emailService.sendTicketResolvedEmail(updated);
+        } else if (updated.status === 'CLOSED') {
+          await emailService.sendTicketClosedEmail(updated);
+        } else {
+          await emailService.sendTicketStatusChangedEmail(updated, oldStatus);
+        }
+      }
+    } catch (err) {
+      const logger = require('../utils/logger');
+      logger.error(`Failed to trigger email notification callbacks in updateTicket: ${err.message}`);
+    }
+  });
 
   return updated;
 };

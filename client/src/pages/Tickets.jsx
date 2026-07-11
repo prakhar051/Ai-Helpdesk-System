@@ -286,7 +286,7 @@ export default function Tickets() {
     try {
       const response = await apiClient.post('/tickets', payload);
       if (response.data?.status === 'success') {
-        setSuccess('Support ticket created successfully.');
+        setSuccess('Support ticket created successfully. Notification email queued.');
         setView('LIST');
         setPage(1);
       }
@@ -307,7 +307,7 @@ export default function Tickets() {
     try {
       const response = await apiClient.patch(`/tickets/${selectedTicket.id}`, payload);
       if (response.data?.status === 'success') {
-        setSuccess('Ticket details updated successfully.');
+        setSuccess('Ticket details updated successfully. Notification email queued.');
         setSelectedTicket(response.data.data.ticket);
         setView('DETAIL');
       }
@@ -328,7 +328,7 @@ export default function Tickets() {
       const payload = { [field]: value };
       const response = await apiClient.patch(`/tickets/${selectedTicket.id}`, payload);
       if (response.data?.status === 'success') {
-        setSuccess(`Ticket ${field} updated successfully.`);
+        setSuccess(`Ticket ${field} updated successfully. Notification email queued.`);
         setSelectedTicket(response.data.data.ticket);
       }
     } catch (err) {

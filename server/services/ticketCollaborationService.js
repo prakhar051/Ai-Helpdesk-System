@@ -55,7 +55,7 @@ const addComment = async (ticketId, user, data) => {
     throw error;
   }
 
-  return await prisma.comment.create({
+  const newComment = await prisma.comment.create({
     data: {
       content: data.content.trim(),
       ticketId,
@@ -67,6 +67,29 @@ const addComment = async (ticketId, user, data) => {
       }
     }
   });
+
+  // Asynchronously send email notifications
+  process.nextTick(async () => {
+    try {
+      const ticket = await prisma.ticket.findUnique({
+        where: { id: ticketId },
+        include: {
+          customer: { select: { id: true, name: true, email: true } },
+          agent: { select: { id: true, name: true, email: true } }
+        }
+      });
+
+      if (!ticket) return;
+
+      const emailService = require('./emailService');
+      await emailService.sendCommentNotificationEmail(ticket, newComment, user);
+    } catch (err) {
+      const logger = require('../utils/logger');
+      logger.error(`Failed to trigger email notification callbacks in addComment: ${err.message}`);
+    }
+  });
+
+  return newComment;
 };
 
 const updateComment = async (ticketId, commentId, user, data) => {
