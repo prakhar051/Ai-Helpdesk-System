@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/apiClient';
+import { useSocket } from '../context/SocketContext';
 
 export default function CommentSection({ ticketId }) {
   const { user } = useAuth();
@@ -33,9 +34,31 @@ export default function CommentSection({ ticketId }) {
     }
   };
 
+  const { socket } = useSocket();
+
   useEffect(() => {
     fetchComments();
   }, [ticketId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleCommentEvent = (payload) => {
+      const { ticketId: incomingTicketId, comment } = payload.data || {};
+      if (incomingTicketId === ticketId) {
+        setComments((prev) => {
+          if (prev.some((c) => c.id === comment.id)) return prev;
+          return [...prev, comment];
+        });
+      }
+    };
+
+    socket.on('ticket:comment', handleCommentEvent);
+
+    return () => {
+      socket.off('ticket:comment', handleCommentEvent);
+    };
+  }, [socket, ticketId]);
 
   const handleAddComment = async (e) => {
     e.preventDefault();

@@ -40,6 +40,10 @@ const server = app.listen(PORT, () => {
   logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
+// Initialize Socket.IO Server
+const { initSocket } = require('./socket/socketServer');
+initSocket(server);
+
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
   logger.error(`Unhandled Promise Rejection: ${err.message}`, { stack: err.stack });

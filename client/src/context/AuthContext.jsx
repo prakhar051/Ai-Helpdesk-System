@@ -1,12 +1,14 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import authService from '../services/authService';
 import apiClient from '../services/apiClient';
+import { useSocket } from './SocketContext';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { connectSocket, disconnectSocket } = useSocket();
 
   // Restore session on initial load
   useEffect(() => {
@@ -17,12 +19,15 @@ export const AuthProvider = ({ children }) => {
           const response = await apiClient.get('/auth/me');
           if (response.data?.status === 'success') {
             setUser(response.data.data.user);
+            connectSocket(token);
           } else {
             localStorage.removeItem('token');
+            disconnectSocket();
           }
         } catch (error) {
           console.error('Failed to restore authentication session:', error);
           localStorage.removeItem('token');
+          disconnectSocket();
         }
       }
       setLoading(false);
@@ -39,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         const { user: loggedInUser, token } = response.data;
         localStorage.setItem('token', token);
         setUser(loggedInUser);
+        connectSocket(token);
         return loggedInUser;
       }
     } catch (error) {
@@ -78,6 +84,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('token');
       setUser(null);
+      disconnectSocket();
       setLoading(false);
     }
   };

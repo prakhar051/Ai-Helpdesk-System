@@ -30,14 +30,21 @@ const createTicket = async (customerId, data) => {
     }
   });
 
-  // Asynchronously send email notifications
+  // Asynchronously send email and socket notifications concurrently
   process.nextTick(async () => {
     try {
       const emailService = require('./emailService');
-      await emailService.sendTicketCreatedEmail(ticket);
+      const socketService = require('./socketService');
+      
+      emailService.sendTicketCreatedEmail(ticket).catch(err => {
+        const logger = require('../utils/logger');
+        logger.error(`Email dispatch error in createTicket: ${err.message}`);
+      });
+      
+      socketService.emitTicketCreated(ticket);
     } catch (err) {
       const logger = require('../utils/logger');
-      logger.error(`Failed to trigger email notification callbacks in createTicket: ${err.message}`);
+      logger.error(`Failed to trigger notification callbacks in createTicket: ${err.message}`);
     }
   });
 
@@ -189,31 +196,57 @@ const updateTicket = async (id, user, updateData) => {
     throw err;
   }
 
-  // Asynchronously send email notifications
+  // Asynchronously send email and socket notifications concurrently
   const oldStatus = ticket.status;
   const oldAgentId = ticket.agentId;
   process.nextTick(async () => {
     try {
       const emailService = require('./emailService');
+      const socketService = require('./socketService');
       
+      let assignedOrStatusChanged = false;
+
       // 1. Check for Assignment changes
       if (updated.agentId && updated.agentId !== oldAgentId) {
-        await emailService.sendTicketAssignmentEmail(updated);
+        emailService.sendTicketAssignmentEmail(updated).catch(err => {
+          const logger = require('../utils/logger');
+          logger.error(`Email dispatch error in updateTicket assignment: ${err.message}`);
+        });
+        socketService.emitTicketAssigned(updated);
+        assignedOrStatusChanged = true;
       }
       
       // 2. Check for Status changes
       if (updated.status !== oldStatus) {
+        assignedOrStatusChanged = true;
         if (updated.status === 'RESOLVED') {
-          await emailService.sendTicketResolvedEmail(updated);
+          emailService.sendTicketResolvedEmail(updated).catch(err => {
+            const logger = require('../utils/logger');
+            logger.error(`Email dispatch error in updateTicket resolve: ${err.message}`);
+          });
+          socketService.emitTicketResolved(updated);
         } else if (updated.status === 'CLOSED') {
-          await emailService.sendTicketClosedEmail(updated);
+          emailService.sendTicketClosedEmail(updated).catch(err => {
+            const logger = require('../utils/logger');
+            logger.error(`Email dispatch error in updateTicket close: ${err.message}`);
+          });
+          socketService.emitTicketClosed(updated);
         } else {
-          await emailService.sendTicketStatusChangedEmail(updated, oldStatus);
+          emailService.sendTicketStatusChangedEmail(updated, oldStatus).catch(err => {
+            const logger = require('../utils/logger');
+            logger.error(`Email dispatch error in updateTicket status change: ${err.message}`);
+          });
+          socketService.emitTicketStatusChanged(updated, oldStatus);
         }
+      }
+
+      // 3. Emit general update if no specific routing/status changed
+      if (!assignedOrStatusChanged) {
+        socketService.emitTicketUpdated(updated);
       }
     } catch (err) {
       const logger = require('../utils/logger');
-      logger.error(`Failed to trigger email notification callbacks in updateTicket: ${err.message}`);
+      logger.error(`Failed to trigger notification callbacks in updateTicket: ${err.message}`);
     }
   });
 

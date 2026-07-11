@@ -68,7 +68,7 @@ const addComment = async (ticketId, user, data) => {
     }
   });
 
-  // Asynchronously send email notifications
+  // Asynchronously send email and socket notifications concurrently
   process.nextTick(async () => {
     try {
       const ticket = await prisma.ticket.findUnique({
@@ -82,10 +82,17 @@ const addComment = async (ticketId, user, data) => {
       if (!ticket) return;
 
       const emailService = require('./emailService');
-      await emailService.sendCommentNotificationEmail(ticket, newComment, user);
+      const socketService = require('./socketService');
+      
+      emailService.sendCommentNotificationEmail(ticket, newComment, user).catch(err => {
+        const logger = require('../utils/logger');
+        logger.error(`Email dispatch error in addComment: ${err.message}`);
+      });
+      
+      socketService.emitTicketComment(ticket, newComment, user);
     } catch (err) {
       const logger = require('../utils/logger');
-      logger.error(`Failed to trigger email notification callbacks in addComment: ${err.message}`);
+      logger.error(`Failed to trigger notification callbacks in addComment: ${err.message}`);
     }
   });
 

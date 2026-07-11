@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/common/Loader';
 import apiClient from '../services/apiClient';
+import { useSocket } from '../context/SocketContext';
 import {
   ResponsiveContainer,
   PieChart,
@@ -24,26 +25,43 @@ export default function Dashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      setStatsLoading(true);
-      setError(null);
-      try {
-        const res = await apiClient.get('/dashboard');
-        if (res.data?.status === 'success') {
-          setStats(res.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard metrics:', err);
-        setError('Failed to load dashboard metrics.');
-      } finally {
-        setStatsLoading(false);
+  const { socket } = useSocket();
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    setError(null);
+    try {
+      const res = await apiClient.get('/dashboard');
+      if (res.data?.status === 'success') {
+        setStats(res.data.data);
       }
-    };
+    } catch (err) {
+      console.error('Failed to load dashboard metrics:', err);
+      setError('Failed to load dashboard metrics.');
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user) {
       fetchStats();
     }
-  }, [user]);
+  }, [user, fetchStats]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleDashboardUpdate = () => {
+      fetchStats();
+    };
+
+    socket.on('dashboard:update', handleDashboardUpdate);
+
+    return () => {
+      socket.off('dashboard:update', handleDashboardUpdate);
+    };
+  }, [socket, fetchStats]);
 
   const handleLogout = async () => {
     try {

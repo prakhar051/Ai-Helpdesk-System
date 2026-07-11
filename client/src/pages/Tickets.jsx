@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/apiClient';
+import { useSocket } from '../context/SocketContext';
 import TicketCard from '../components/TicketCard';
 import TicketForm from '../components/TicketForm';
 import CommentSection from '../components/CommentSection';
@@ -9,6 +10,7 @@ import AttachmentSection from '../components/AttachmentSection';
 
 export default function Tickets() {
   const { user } = useAuth();
+  const { socket } = useSocket();
 
   // View States: 'LIST', 'DETAIL', 'CREATE', 'EDIT'
   const [view, setView] = useState('LIST');
@@ -249,6 +251,38 @@ export default function Tickets() {
     fetchAgents();
     fetchCategories();
   }, [user]);
+
+  // Real-time WebSockets synchronization
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTicketCreated = (payload) => {
+      fetchTickets();
+    };
+
+    const handleTicketUpdated = (payload) => {
+      const { ticket } = payload.data || {};
+      if (!ticket) return;
+      setTickets((prev) => prev.map((t) => (t.id === ticket.id ? { ...t, ...ticket } : t)));
+      setSelectedTicket((prev) => (prev && prev.id === ticket.id ? ticket : prev));
+    };
+
+    socket.on('ticket:created', handleTicketCreated);
+    socket.on('ticket:updated', handleTicketUpdated);
+    socket.on('ticket:assigned', handleTicketUpdated);
+    socket.on('ticket:status', handleTicketUpdated);
+    socket.on('ticket:resolved', handleTicketUpdated);
+    socket.on('ticket:closed', handleTicketUpdated);
+
+    return () => {
+      socket.off('ticket:created', handleTicketCreated);
+      socket.off('ticket:updated', handleTicketUpdated);
+      socket.off('ticket:assigned', handleTicketUpdated);
+      socket.off('ticket:status', handleTicketUpdated);
+      socket.off('ticket:resolved', handleTicketUpdated);
+      socket.off('ticket:closed', handleTicketUpdated);
+    };
+  }, [socket]);
 
   // Handle ticket selection detail view
   const handleSelectTicket = async (ticket) => {
