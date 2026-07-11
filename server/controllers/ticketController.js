@@ -33,7 +33,24 @@ const updateTicketSchema = z.object({
 // @access  Private
 const getTickets = async (req, res, next) => {
   try {
-    const { search, status, priority, categoryId, agentId, customerId, page, limit } = req.query;
+    const {
+      search,
+      status,
+      priority,
+      categoryId,
+      agentId,
+      customerId,
+      startDate,
+      endDate,
+      createdByMe,
+      assignedToMe,
+      unassigned,
+      sortBy,
+      sortOrder,
+      page,
+      limit
+    } = req.query;
+
     const result = await ticketService.getAllTickets({
       search,
       status,
@@ -42,8 +59,16 @@ const getTickets = async (req, res, next) => {
       agentId,
       customerId,
       role: req.user.role,
+      startDate,
+      endDate,
+      createdByMe,
+      assignedToMe,
+      unassigned,
+      sortBy,
+      sortOrder,
       page,
-      limit
+      limit,
+      currentUserId: req.user.id
     });
 
     return res.status(200).json({

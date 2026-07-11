@@ -13,6 +13,7 @@ export default function UserManagement() {
   const [limit] = useState(8);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -21,12 +22,13 @@ export default function UserManagement() {
   const [success, setSuccess] = useState(null);
 
   // Fetch users list
+  // Fetch users list
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await getUsers({
-        search: search.trim() || undefined,
+        search: debouncedSearch.trim() || undefined,
         role: roleFilter || undefined,
         isActive: statusFilter === 'ACTIVE' ? 'true' : statusFilter === 'INACTIVE' ? 'false' : undefined,
         page,
@@ -45,10 +47,35 @@ export default function UserManagement() {
     }
   };
 
-  // Fetch users when page or dropdown filters change
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  // Reset page to 1 on filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, roleFilter, statusFilter]);
+
+  // Fetch users when page or filters change
   useEffect(() => {
     fetchUsers();
-  }, [page, roleFilter, statusFilter]);
+  }, [page, debouncedSearch, roleFilter, statusFilter]);
+
+  const hasActiveFilters = () => {
+    return !!(debouncedSearch || roleFilter || statusFilter);
+  };
+
+  const handleResetAllFilters = () => {
+    setSearch('');
+    setRoleFilter('');
+    setStatusFilter('');
+  };
 
   // Handle role modification
   const handleRoleChange = async (userId, newRole) => {
@@ -120,15 +147,8 @@ export default function UserManagement() {
         )}
 
         {/* Query Filters & Search Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              setPage(1);
-              fetchUsers();
-            }} 
-            className="flex gap-2"
-          >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div className="relative flex gap-2">
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -136,18 +156,21 @@ export default function UserManagement() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 placeholder-gray-500"
             />
-            <button 
-              type="submit" 
-              className="px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition duration-150"
-            >
-              Search
-            </button>
-          </form>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+              >
+                Clear
+              </button>
+            )}
+          </div>
 
           <div>
             <select
               value={roleFilter}
-              onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
+              onChange={(e) => setRoleFilter(e.target.value)}
               className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition duration-150"
             >
               <option value="">All Roles</option>
@@ -160,7 +183,7 @@ export default function UserManagement() {
           <div>
             <select
               value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition duration-150"
             >
               <option value="">All Statuses</option>
@@ -169,6 +192,22 @@ export default function UserManagement() {
             </select>
           </div>
         </div>
+
+        {/* Active badges & reset row */}
+        {hasActiveFilters() && (
+          <div className="flex flex-wrap items-center gap-2 mt-2 mb-4">
+            <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+            {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
+            {roleFilter && <FilterBadge label={`Role: ${roleFilter}`} onClear={() => setRoleFilter('')} />}
+            {statusFilter && <FilterBadge label={`Status: ${statusFilter}`} onClear={() => setStatusFilter('')} />}
+            <button
+              onClick={handleResetAllFilters}
+              className="text-[10px] text-rose-400 hover:text-rose-300 font-bold uppercase ml-2 transition"
+            >
+              Reset All ×
+            </button>
+          </div>
+        )}
 
         {/* Table View */}
         <div className="overflow-x-auto bg-slate-950/20 border border-white/5 rounded-2xl relative min-h-[300px]">
@@ -281,3 +320,10 @@ export default function UserManagement() {
     </div>
   );
 }
+
+const FilterBadge = ({ label, onClear }) => (
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+    {label}
+    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+  </span>
+);

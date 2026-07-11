@@ -282,10 +282,28 @@ const deleteTicket = async (id) => {
 
 /**
  * Query all tickets with search, filters, pagination, and role-based scoping.
- * @param {object} params - search, status, priority, categoryId, agentId, customerId, role, page, limit
+ * @param {object} params - search, status, priority, categoryId, agentId, customerId, role, page, limit, etc.
  * @returns {Promise<object>} Tickets array & pagination.
  */
-const getAllTickets = async ({ search, status, priority, categoryId, agentId, customerId, role, page = 1, limit = 8 }) => {
+const getAllTickets = async ({
+  search,
+  status,
+  priority,
+  categoryId,
+  agentId,
+  customerId,
+  role,
+  startDate,
+  endDate,
+  createdByMe,
+  assignedToMe,
+  unassigned,
+  sortBy = 'createdAt',
+  sortOrder = 'desc',
+  page = 1,
+  limit = 8,
+  currentUserId
+}) => {
   const pageNum = Math.max(1, parseInt(page) || 1);
   const limitNum = Math.max(1, parseInt(limit) || 8);
   const skip = (pageNum - 1) * limitNum;
@@ -294,7 +312,7 @@ const getAllTickets = async ({ search, status, priority, categoryId, agentId, cu
 
   // Customer visibility scope constraint
   if (role === 'CUSTOMER') {
-    where.customerId = customerId;
+    where.customerId = currentUserId;
   } else {
     // Admins and Agents can filter by specific customerId if requested
     if (customerId) {
@@ -304,6 +322,17 @@ const getAllTickets = async ({ search, status, priority, categoryId, agentId, cu
     if (agentId) {
       where.agentId = agentId === 'unassigned' ? null : agentId;
     }
+  }
+
+  // Toggle createdByMe / assignedToMe / unassigned
+  if (createdByMe === 'true' || createdByMe === true) {
+    where.customerId = currentUserId;
+  }
+  if (assignedToMe === 'true' || assignedToMe === true) {
+    where.agentId = currentUserId;
+  }
+  if (unassigned === 'true' || unassigned === true) {
+    where.agentId = null;
   }
 
   // Filter by status
@@ -321,6 +350,19 @@ const getAllTickets = async ({ search, status, priority, categoryId, agentId, cu
     where.categoryId = categoryId === 'unassigned' ? null : categoryId;
   }
 
+  // Filter by date range
+  if (startDate || endDate) {
+    where.createdAt = {};
+    if (startDate) {
+      where.createdAt.gte = new Date(startDate);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      where.createdAt.lte = end;
+    }
+  }
+
   // Search keyword parsing
   if (search) {
     const searchClean = search.trim();
@@ -330,13 +372,32 @@ const getAllTickets = async ({ search, status, priority, categoryId, agentId, cu
 
     where.OR = [
       { title: { contains: searchClean, mode: 'insensitive' } },
-      { description: { contains: searchClean, mode: 'insensitive' } }
+      { description: { contains: searchClean, mode: 'insensitive' } },
+      { customer: { name: { contains: searchClean, mode: 'insensitive' } } },
+      { agent: { name: { contains: searchClean, mode: 'insensitive' } } },
+      { category: { name: { contains: searchClean, mode: 'insensitive' } } }
     ];
 
     if (!isNaN(numericVal)) {
       where.OR.push({ ticketNumber: numericVal });
     }
+
+    // Also match status / priority enums if searchClean matches them
+    const possibleStatuses = ['OPEN', 'IN_PROGRESS', 'PENDING', 'RESOLVED', 'CLOSED'];
+    const possiblePriorities = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+    const searchUpper = searchClean.toUpperCase();
+    if (possibleStatuses.includes(searchUpper)) {
+      where.OR.push({ status: searchUpper });
+    }
+    if (possiblePriorities.includes(searchUpper)) {
+      where.OR.push({ priority: searchUpper });
+    }
   }
+
+  // Sorting
+  const allowedSortFields = ['createdAt', 'updatedAt', 'priority', 'ticketNumber'];
+  const actualSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+  const actualSortOrder = ['asc', 'desc'].includes(sortOrder) ? sortOrder : 'desc';
 
   const [tickets, total] = await Promise.all([
     prisma.ticket.findMany({
@@ -352,7 +413,7 @@ const getAllTickets = async ({ search, status, priority, categoryId, agentId, cu
           select: { id: true, name: true, isActive: true }
         }
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { [actualSortBy]: actualSortOrder },
       skip,
       take: limitNum
     }),

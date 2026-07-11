@@ -25,10 +25,18 @@ export default function Tickets() {
 
   // Filters State
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [assigneeFilter, setAssigneeFilter] = useState(''); // '' (All), 'unassigned', or AGENT_ID
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [createdByMe, setCreatedByMe] = useState(false);
+  const [assignedToMe, setAssignedToMe] = useState(false);
+  const [unassignedFilter, setUnassignedFilter] = useState(false);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   // Lists for dropdown selectors
   const [agents, setAgents] = useState([]);
@@ -190,11 +198,18 @@ export default function Tickets() {
     try {
       const response = await apiClient.get('/tickets', {
         params: {
-          search: search.trim() || undefined,
+          search: debouncedSearch.trim() || undefined,
           status: statusFilter || undefined,
           priority: priorityFilter || undefined,
           categoryId: categoryFilter || undefined,
           agentId: assigneeFilter || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          createdByMe: createdByMe || undefined,
+          assignedToMe: assignedToMe || undefined,
+          unassigned: unassignedFilter || undefined,
+          sortBy,
+          sortOrder,
           page,
           limit
         }
@@ -240,12 +255,84 @@ export default function Tickets() {
     }
   };
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  // Reset page to 1 on filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [
+    debouncedSearch,
+    statusFilter,
+    priorityFilter,
+    categoryFilter,
+    assigneeFilter,
+    startDate,
+    endDate,
+    createdByMe,
+    assignedToMe,
+    unassignedFilter,
+    sortBy,
+    sortOrder
+  ]);
+
   // Run queries
   useEffect(() => {
     if (view === 'LIST') {
       fetchTickets();
     }
-  }, [page, statusFilter, priorityFilter, categoryFilter, assigneeFilter, view]);
+  }, [
+    page,
+    debouncedSearch,
+    statusFilter,
+    priorityFilter,
+    categoryFilter,
+    assigneeFilter,
+    startDate,
+    endDate,
+    createdByMe,
+    assignedToMe,
+    unassignedFilter,
+    sortBy,
+    sortOrder,
+    view
+  ]);
+
+  const hasActiveFilters = () => {
+    return !!(
+      debouncedSearch ||
+      statusFilter ||
+      priorityFilter ||
+      categoryFilter ||
+      startDate ||
+      endDate ||
+      assignedToMe ||
+      createdByMe ||
+      unassignedFilter
+    );
+  };
+
+  const handleResetAllFilters = () => {
+    setSearch('');
+    setStatusFilter('');
+    setPriorityFilter('');
+    setCategoryFilter('');
+    setAssigneeFilter('');
+    setStartDate('');
+    setEndDate('');
+    setAssignedToMe(false);
+    setCreatedByMe(false);
+    setUnassignedFilter(false);
+    setSortBy('createdAt');
+    setSortOrder('desc');
+  };
 
   useEffect(() => {
     fetchAgents();
@@ -442,111 +529,192 @@ export default function Tickets() {
         {view === 'LIST' && (
           <div className="space-y-6">
             {/* Filter Panel */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-              
-              {/* Search Form */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setPage(1);
-                  fetchTickets();
-                }}
-                className="flex gap-2 col-span-1 sm:col-span-2"
-              >
-                <input
-                  type="text"
-                  placeholder="Search tickets..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
-                />
-                <button
-                  type="submit"
-                  className="px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition"
-                >
-                  Search
-                </button>
-              </form>
+            <div className="space-y-4 mb-6">
+              {/* Search and Filters grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* Search Input */}
+                <div className="col-span-1 sm:col-span-2 relative">
+                  <input
+                    type="text"
+                    placeholder="Search by ID (e.g. HD-000001), keyword, names, status, or priority..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
+                  />
+                  {search && (
+                    <button
+                      onClick={() => setSearch('')}
+                      className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
 
-              {/* Status filter dropdown */}
-              <div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="OPEN">Open</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="RESOLVED">Resolved</option>
-                  <option value="CLOSED">Closed</option>
-                </select>
-              </div>
-
-              {/* Priority filter dropdown */}
-              <div>
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => {
-                    setPriorityFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
-                >
-                  <option value="">All Priorities</option>
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                  <option value="URGENT">Urgent</option>
-                </select>
-              </div>
-
-              {/* Category filter dropdown */}
-              <div>
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => {
-                    setCategoryFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
-                >
-                  <option value="">All Categories</option>
-                  <option value="unassigned">Uncategorized</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Assignee Filter Dropdown (Admins / Agents only) */}
-              {user?.role !== 'CUSTOMER' && (
-                <div>
+                {/* Sorting options */}
+                <div className="flex gap-2">
                   <select
-                    value={assigneeFilter}
-                    onChange={(e) => {
-                      setAssigneeFilter(e.target.value);
-                      setPage(1);
-                    }}
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
                     className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
                   >
-                    <option value="">All Assignees</option>
-                    <option value="unassigned">Unassigned Queue</option>
-                    <option value={user.id}>Assigned to Me</option>
-                    {user?.role === 'ADMIN' && agents.map(ag => (
-                      ag.id !== user.id && (
-                        <option key={ag.id} value={ag.id}>
-                          {ag.name} ({ag.role})
-                        </option>
-                      )
+                    <option value="createdAt">Sort: Created Date</option>
+                    <option value="updatedAt">Sort: Updated Date</option>
+                    <option value="priority">Sort: Priority</option>
+                    <option value="ticketNumber">Sort: Ticket Number</option>
+                  </select>
+                  <button
+                    onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                    className="px-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 text-xs font-semibold rounded-xl transition flex items-center justify-center whitespace-nowrap"
+                  >
+                    {sortOrder === 'asc' ? 'Asc ▲' : 'Desc ▼'}
+                  </button>
+                </div>
+
+                {/* Status selector */}
+                <div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">Open</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Advanced criteria row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* Priority filter */}
+                <div>
+                  <select
+                    value={priorityFilter}
+                    onChange={(e) => setPriorityFilter(e.target.value)}
+                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                  >
+                    <option value="">All Priorities</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </select>
+                </div>
+
+                {/* Category filter */}
+                <div>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                  >
+                    <option value="">All Categories</option>
+                    <option value="unassigned">Uncategorized</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Date range filters */}
+                <div className="flex gap-2 col-span-1 sm:col-span-2">
+                  <div className="flex items-center gap-1.5 w-1/2">
+                    <span className="text-[10px] text-gray-500 uppercase font-semibold">Start</span>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 w-1/2">
+                    <span className="text-[10px] text-gray-500 uppercase font-semibold">End</span>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Toggles row (only visible/meaningful depending on roles) */}
+              {user?.role !== 'CUSTOMER' && (
+                <div className="flex flex-wrap items-center gap-4 bg-slate-950/20 border border-white/5 rounded-xl p-3 text-xs text-gray-300">
+                  <span className="font-semibold text-gray-400">Quick Filters:</span>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={assignedToMe}
+                      onChange={(e) => {
+                        setAssignedToMe(e.target.checked);
+                        if (e.target.checked) {
+                          setUnassignedFilter(false); // Mutually exclusive
+                        }
+                      }}
+                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                    />
+                    <span>Assigned to Me</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={createdByMe}
+                      onChange={(e) => setCreatedByMe(e.target.checked)}
+                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                    />
+                    <span>Created by Me</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={unassignedFilter}
+                      onChange={(e) => {
+                        setUnassignedFilter(e.target.checked);
+                        if (e.target.checked) {
+                          setAssignedToMe(false); // Mutually exclusive
+                        }
+                      }}
+                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                    />
+                    <span>Unassigned</span>
+                  </label>
+                </div>
+              )}
+
+              {/* Active badges & reset row */}
+              {hasActiveFilters() && (
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+                  {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
+                  {statusFilter && <FilterBadge label={`Status: ${statusFilter}`} onClear={() => setStatusFilter('')} />}
+                  {priorityFilter && <FilterBadge label={`Priority: ${priorityFilter}`} onClear={() => setPriorityFilter('')} />}
+                  {categoryFilter && (
+                    <FilterBadge
+                      label={`Category: ${categories.find(c => c.id === categoryFilter)?.name || 'Uncategorized'}`}
+                      onClear={() => setCategoryFilter('')}
+                    />
+                  )}
+                  {startDate && <FilterBadge label={`After: ${startDate}`} onClear={() => setStartDate('')} />}
+                  {endDate && <FilterBadge label={`Before: ${endDate}`} onClear={() => setEndDate('')} />}
+                  {assignedToMe && <FilterBadge label="Assigned to Me" onClear={() => setAssignedToMe(false)} />}
+                  {createdByMe && <FilterBadge label="Created by Me" onClear={() => setCreatedByMe(false)} />}
+                  {unassignedFilter && <FilterBadge label="Unassigned" onClear={() => setUnassignedFilter(false)} />}
+                  <button
+                    onClick={handleResetAllFilters}
+                    className="text-[10px] text-rose-400 hover:text-rose-300 font-bold uppercase ml-2 transition"
+                  >
+                    Reset All ×
+                  </button>
                 </div>
               )}
             </div>
@@ -1071,3 +1239,10 @@ export default function Tickets() {
     </div>
   );
 }
+
+const FilterBadge = ({ label, onClear }) => (
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+    {label}
+    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+  </span>
+);

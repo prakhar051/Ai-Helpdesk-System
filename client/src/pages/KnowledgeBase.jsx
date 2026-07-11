@@ -21,6 +21,7 @@ export default function KnowledgeBase() {
 
   // Filters State
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState(''); // '' (All), 'ARTICLES', 'FAQS'
   const [statusFilter, setStatusFilter] = useState(''); // '' (All), 'DRAFT', 'PUBLISHED'
@@ -39,7 +40,7 @@ export default function KnowledgeBase() {
       const isFaqParam = typeFilter === 'FAQS' ? 'true' : typeFilter === 'ARTICLES' ? 'false' : undefined;
       const response = await apiClient.get('/kb', {
         params: {
-          search: search.trim() || undefined,
+          search: debouncedSearch.trim() || undefined,
           category: categoryFilter.trim() || undefined,
           status: statusFilter || undefined,
           isFaq: isFaqParam,
@@ -60,12 +61,38 @@ export default function KnowledgeBase() {
     }
   };
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  // Reset page to 1 on filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, categoryFilter, typeFilter, statusFilter]);
+
   // Run initial queries & paginate
   useEffect(() => {
     if (view === 'LIST') {
       fetchArticles();
     }
-  }, [page, categoryFilter, typeFilter, statusFilter, view]);
+  }, [page, debouncedSearch, categoryFilter, typeFilter, statusFilter, view]);
+
+  const hasActiveFilters = () => {
+    return !!(debouncedSearch || categoryFilter || typeFilter || statusFilter);
+  };
+
+  const handleResetAllFilters = () => {
+    setSearch('');
+    setCategoryFilter('');
+    setTypeFilter('');
+    setStatusFilter('');
+  };
 
   // Handle article view selection
   const handleSelectArticle = async (article) => {
@@ -196,31 +223,27 @@ export default function KnowledgeBase() {
         {view === 'LIST' && (
           <div className="space-y-6">
             {/* Filter Search Box and Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               
               {/* Search Form */}
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setPage(1);
-                  fetchArticles();
-                }}
-                className="flex gap-2 col-span-1 md:col-span-2"
-              >
+              <div className="relative col-span-1 md:col-span-2">
                 <input
                   type="text"
-                  placeholder="Search articles by title, tags..."
+                  placeholder="Search articles by title, content, or tags..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
                 />
-                <button
-                  type="submit"
-                  className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition"
-                >
-                  Search
-                </button>
-              </form>
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
 
               {/* Category selector */}
               <div>
@@ -228,10 +251,7 @@ export default function KnowledgeBase() {
                   type="text"
                   placeholder="Filter by Category..."
                   value={categoryFilter}
-                  onChange={(e) => {
-                    setCategoryFilter(e.target.value);
-                    setPage(1);
-                  }}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
                 />
               </div>
@@ -240,10 +260,7 @@ export default function KnowledgeBase() {
               <div className="flex gap-2">
                 <select
                   value={typeFilter}
-                  onChange={(e) => {
-                    setTypeFilter(e.target.value);
-                    setPage(1);
-                  }}
+                  onChange={(e) => setTypeFilter(e.target.value)}
                   className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
                 >
                   <option value="">All Types</option>
@@ -254,10 +271,7 @@ export default function KnowledgeBase() {
                 {user?.role !== 'CUSTOMER' && (
                   <select
                     value={statusFilter}
-                    onChange={(e) => {
-                      setStatusFilter(e.target.value);
-                      setPage(1);
-                    }}
+                    onChange={(e) => setStatusFilter(e.target.value)}
                     className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
                   >
                     <option value="">All Statuses</option>
@@ -267,6 +281,23 @@ export default function KnowledgeBase() {
                 )}
               </div>
             </div>
+
+            {/* Active badges & reset row */}
+            {hasActiveFilters() && (
+              <div className="flex flex-wrap items-center gap-2 mt-2 mb-4">
+                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+                {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
+                {categoryFilter && <FilterBadge label={`Category: ${categoryFilter}`} onClear={() => setCategoryFilter('')} />}
+                {typeFilter && <FilterBadge label={`Type: ${typeFilter}`} onClear={() => setTypeFilter('')} />}
+                {statusFilter && <FilterBadge label={`Status: ${statusFilter}`} onClear={() => setStatusFilter('')} />}
+                <button
+                  onClick={handleResetAllFilters}
+                  className="text-[10px] text-rose-400 hover:text-rose-300 font-bold uppercase ml-2 transition"
+                >
+                  Reset All ×
+                </button>
+              </div>
+            )}
 
             {/* List Table/Grid container */}
             <div className="relative min-h-[300px]">
@@ -433,3 +464,10 @@ export default function KnowledgeBase() {
     </div>
   );
 }
+
+const FilterBadge = ({ label, onClear }) => (
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+    {label}
+    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+  </span>
+);

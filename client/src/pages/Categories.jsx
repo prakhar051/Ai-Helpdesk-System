@@ -16,6 +16,7 @@ export default function Categories() {
   // Listing Data
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState(''); // '' (All), 'true' (Active), 'false' (Inactive)
 
   // Loading & Alerts
@@ -31,7 +32,7 @@ export default function Categories() {
     try {
       const response = await apiClient.get('/categories', {
         params: {
-          search: search.trim() || undefined,
+          search: debouncedSearch.trim() || undefined,
           isActive: statusFilter || undefined
         }
       });
@@ -46,12 +47,31 @@ export default function Categories() {
     }
   };
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
   // Run initial listing query
   useEffect(() => {
     if (view === 'LIST') {
       fetchCategories();
     }
-  }, [statusFilter, view]);
+  }, [debouncedSearch, statusFilter, view]);
+
+  const hasActiveFilters = () => {
+    return !!(debouncedSearch || statusFilter);
+  };
+
+  const handleResetAllFilters = () => {
+    setSearch('');
+    setStatusFilter('');
+  };
 
   // Create Category submission
   const handleCreateCategory = async (payload) => {
@@ -165,15 +185,9 @@ export default function Categories() {
           <div className="space-y-6">
             
             {/* Filter Search controls */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* Search Form */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  fetchCategories();
-                }}
-                className="flex gap-2 col-span-1 md:col-span-2"
-              >
+              <div className="relative col-span-1 md:col-span-2">
                 <input
                   type="text"
                   placeholder="Search categories by name, description..."
@@ -181,29 +195,54 @@ export default function Categories() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
                 />
-                <button
-                  type="submit"
-                  className="px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition"
-                >
-                  Search
-                </button>
-              </form>
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
 
               {/* Status Select (Admins/Agents only) */}
-              {user?.role !== 'CUSTOMER' && (
+              {user?.role !== 'CUSTOMER' ? (
                 <div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
                   >
-                    <option value="">All Categories</option>
+                    <option value="">All Statuses</option>
                     <option value="true">Active Only</option>
                     <option value="false">Inactive Only</option>
                   </select>
                 </div>
+              ) : (
+                <div />
               )}
             </div>
+
+            {/* Active badges & reset row */}
+            {hasActiveFilters() && (
+              <div className="flex flex-wrap items-center gap-2 mt-2 mb-4">
+                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+                {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
+                {statusFilter && (
+                  <FilterBadge
+                    label={`Status: ${statusFilter === 'true' ? 'Active' : 'Inactive'}`}
+                    onClear={() => setStatusFilter('')}
+                  />
+                )}
+                <button
+                  onClick={handleResetAllFilters}
+                  className="text-[10px] text-rose-400 hover:text-rose-300 font-bold uppercase ml-2 transition"
+                >
+                  Reset All ×
+                </button>
+              </div>
+            )}
 
             {/* List Grids */}
             <div className="relative min-h-[250px]">
@@ -260,3 +299,10 @@ export default function Categories() {
     </div>
   );
 }
+
+const FilterBadge = ({ label, onClear }) => (
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+    {label}
+    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+  </span>
+);
