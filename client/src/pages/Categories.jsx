@@ -73,6 +73,31 @@ export default function Categories() {
     setStatusFilter('');
   };
 
+  const handleExport = async (format) => {
+    setError(null);
+    setSuccess('Preparing Report... Your download will begin automatically.');
+    try {
+      const response = await apiClient.get('/reports/categories', {
+        params: { format },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_categories_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      setSuccess('Report downloaded successfully!');
+    } catch (err) {
+      console.error('Failed to export categories report:', err);
+      setError('Failed to export categories report.');
+      setSuccess(null);
+    }
+  };
+
   // Create Category submission
   const handleCreateCategory = async (payload) => {
     setFormLoading(true);
@@ -150,6 +175,22 @@ export default function Categories() {
           </div>
 
           <div className="flex items-center gap-3">
+            {isAdmin && view === 'LIST' && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleExport('pdf')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export PDF
+                </button>
+                <button
+                  onClick={() => handleExport('csv')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export CSV
+                </button>
+              </div>
+            )}
             {isAdmin && view === 'LIST' && (
               <button
                 onClick={() => {

@@ -24,6 +24,32 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const handleExport = async (format) => {
+    setError(null);
+    setSuccess('Preparing Report... Your download will begin automatically.');
+    try {
+      const response = await apiClient.get('/reports/dashboard', {
+        params: { format },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_dashboard_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      setSuccess('Report downloaded successfully!');
+    } catch (err) {
+      console.error('Failed to export dashboard report:', err);
+      setError('Failed to export dashboard report.');
+      setSuccess(null);
+    }
+  };
 
   const { socket } = useSocket();
 
@@ -531,6 +557,22 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-4">
+          {user.role !== 'CUSTOMER' && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleExport('pdf')}
+                className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+              >
+                Export PDF
+              </button>
+              <button
+                onClick={() => handleExport('csv')}
+                className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+              >
+                Export CSV
+              </button>
+            </div>
+          )}
           <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-indigo-400 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
             Role: {user.role}
@@ -573,6 +615,11 @@ export default function Dashboard() {
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
             <strong>Error:</strong> {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs">
+            <strong>Info:</strong> {success}
           </div>
         )}
 

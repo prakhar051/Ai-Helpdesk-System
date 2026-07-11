@@ -227,6 +227,46 @@ export default function Tickets() {
     }
   };
 
+  // Export tickets matching filters
+  const handleExport = async (format) => {
+    setError(null);
+    setSuccess('Preparing Report... Your download will begin automatically.');
+    try {
+      const response = await apiClient.get('/reports/tickets', {
+        params: {
+          search: debouncedSearch.trim() || undefined,
+          status: statusFilter || undefined,
+          priority: priorityFilter || undefined,
+          categoryId: categoryFilter || undefined,
+          agentId: assigneeFilter || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          createdByMe: createdByMe || undefined,
+          assignedToMe: assignedToMe || undefined,
+          unassigned: unassignedFilter || undefined,
+          sortBy,
+          sortOrder,
+          format
+        },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_tickets_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      setSuccess('Report downloaded successfully!');
+    } catch (err) {
+      console.error('Failed to export report:', err);
+      setError('Failed to export report.');
+      setSuccess(null);
+    }
+  };
+
   // Fetch agents list for Admin assignment selectors
   const fetchAgents = async () => {
     if (user?.role !== 'ADMIN') return;
@@ -495,6 +535,22 @@ export default function Tickets() {
           </div>
 
           <div className="flex items-center gap-3">
+            {view === 'LIST' && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleExport('pdf')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export PDF
+                </button>
+                <button
+                  onClick={() => handleExport('csv')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export CSV
+                </button>
+              </div>
+            )}
             {user?.role === 'CUSTOMER' && view === 'LIST' && (
               <button
                 onClick={() => {

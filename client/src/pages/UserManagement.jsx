@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUsers, updateUserRole, updateUserStatus } from '../services/userService';
+import apiClient from '../services/apiClient';
 
 export default function UserManagement() {
   const { user: currentUser } = useAuth();
@@ -77,6 +78,31 @@ export default function UserManagement() {
     setStatusFilter('');
   };
 
+  const handleExport = async (format) => {
+    setError(null);
+    setSuccess('Preparing Report... Your download will begin automatically.');
+    try {
+      const response = await apiClient.get('/reports/users', {
+        params: { format },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: format === 'pdf' ? 'application/pdf' : 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_users_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      setSuccess('Report downloaded successfully!');
+    } catch (err) {
+      console.error('Failed to export users report:', err);
+      setError('Failed to export users report.');
+      setSuccess(null);
+    }
+  };
+
   // Handle role modification
   const handleRoleChange = async (userId, newRole) => {
     setActionLoadingId(userId);
@@ -129,8 +155,26 @@ export default function UserManagement() {
             </Link>
             <span className="text-white font-bold text-xl ml-2">User Management System</span>
           </div>
-          <div className="text-xs text-indigo-400 font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 self-start">
-            Access Level: {currentUser?.role}
+          <div className="flex items-center gap-3">
+            {currentUser?.role === 'ADMIN' && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleExport('pdf')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export PDF
+                </button>
+                <button
+                  onClick={() => handleExport('csv')}
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                >
+                  Export CSV
+                </button>
+              </div>
+            )}
+            <div className="text-xs text-indigo-400 font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 self-start">
+              Access Level: {currentUser?.role}
+            </div>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ const kbRoutes = require('./routes/kbRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/v1/kb', kbRoutes);
 app.use('/api/v1/tickets', ticketRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
 // Fallback 404 handler
 app.use((req, res, next) => {
