@@ -113,9 +113,9 @@ export default function AttachmentSection({ ticketId }) {
   };
 
   return (
-    <div className="space-y-6 pt-6 border-t border-white/5">
+    <div className="space-y-6 pt-6 border-t border-borderDefault">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-textMuted">
           File Attachments
         </h3>
 
@@ -131,7 +131,7 @@ export default function AttachmentSection({ ticketId }) {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-200 text-[10px] font-semibold border border-white/5 transition flex items-center gap-1.5 disabled:opacity-50"
+            className="py-1.5 px-3 rounded-lg bg-bgSecondary hover:bg-slate-700 text-textSecondary text-[10px] font-semibold border border-borderDefault transition flex items-center gap-1.5 disabled:opacity-50"
           >
             {uploading ? (
               <>
@@ -158,7 +158,7 @@ export default function AttachmentSection({ ticketId }) {
             <div className="w-5 h-5 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
           </div>
         ) : attachments.length === 0 ? (
-          <div className="text-center py-4 text-gray-500 text-xs italic">
+          <div className="text-center py-4 text-textDisabled text-xs italic">
             No files attached yet.
           </div>
         ) : (
@@ -168,14 +168,14 @@ export default function AttachmentSection({ ticketId }) {
               const canDelete = isUploader || user?.role === 'ADMIN';
 
               return (
-                <div key={file.id} className="bg-slate-900/20 border border-white/5 hover:border-white/10 rounded-xl p-3 flex items-center justify-between gap-3 group transition duration-150">
+                <div key={file.id} className="bg-bgSurface border border-slate-200/20 border border-borderDefault hover:border-borderDefault rounded-xl p-3 flex items-center justify-between gap-3 group transition duration-150">
                   <div className="flex items-center gap-3 overflow-hidden">
                     <span className="text-xl">📄</span>
                     <div className="overflow-hidden">
-                      <h4 className="text-xs font-bold text-gray-200 truncate pr-2">
+                      <h4 className="text-xs font-bold text-textSecondary truncate pr-2">
                         {file.originalName}
                       </h4>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="text-[10px] text-textDisabled">
                         {formatSize(file.fileSize)} • {file.uploadedBy?.name}
                       </p>
                     </div>
@@ -184,7 +184,7 @@ export default function AttachmentSection({ ticketId }) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleDownload(file)}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-400 text-[10px] font-semibold transition"
+                      className="p-1.5 rounded-lg bg-bgSecondary hover:bg-slate-700 text-primary text-[10px] font-semibold transition"
                       title="Download File"
                     >
                       Download
@@ -192,7 +192,7 @@ export default function AttachmentSection({ ticketId }) {
                     {canDelete && (
                       <button
                         onClick={() => handleDelete(file.id)}
-                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-[10px] font-semibold border border-red-500/20 transition"
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-textPrimary text-[10px] font-semibold border border-red-500/20 transition"
                         title="Delete File"
                       >
                         Delete

@@ -111,7 +111,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
-      <h2 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      <h2 className="text-xl font-bold bg-gradient-to-r from-textPrimary to-textSecondary bg-clip-text text-transparent">
         {ticket ? 'Edit Ticket Content' : 'Create Support Ticket'}
       </h2>
 
@@ -123,26 +123,26 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
 
       {/* Ticket Title */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Ticket Subject</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Ticket Subject</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={loading}
           placeholder="Describe the issue briefly (e.g. Email sync failing)"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Priority Selector */}
         <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-semibold block">Priority Level</label>
+          <label className="text-xs text-textMuted uppercase font-semibold block">Priority Level</label>
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
             disabled={loading}
-            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+            className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -153,12 +153,12 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
 
         {/* Category Selector */}
         <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-semibold block">Category</label>
+          <label className="text-xs text-textMuted uppercase font-semibold block">Category</label>
           <select
             value={categoryId || 'unassigned'}
             onChange={(e) => setCategoryId(e.target.value)}
             disabled={loading}
-            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+            className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
           >
             <option value="unassigned">Uncategorized</option>
             {categories.map(cat => (
@@ -172,14 +172,14 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
 
       {/* Ticket Description */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Description Details</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Description Details</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={loading}
           placeholder="Please enter details of your issue. Include steps to reproduce if applicable."
           rows="8"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50 resize-y leading-relaxed"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50 resize-y leading-relaxed"
         />
       </div>
 
@@ -190,7 +190,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
             type="button"
             onClick={handleAIAnalyze}
             disabled={loading || aiLoading}
-            className="py-1.5 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50"
+            className="py-1.5 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-primary text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50"
           >
             {aiLoading ? (
               <>
@@ -206,14 +206,14 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
         {aiSuggestion && (
           <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <strong className="text-indigo-400 text-xs">✨ AI Recommendations Found:</strong>
-              <span className="text-[10px] text-gray-500 font-medium">Gemini Intelligence</span>
+              <strong className="text-primary text-xs">✨ AI Recommendations Found:</strong>
+              <span className="text-[10px] text-textDisabled font-medium">Gemini Intelligence</span>
             </div>
-            <p className="text-gray-300">
-              Suggested Category: <span className="text-white font-bold">{aiSuggestion.categoryName}</span> • Predicted Priority: <span className="text-white font-bold">{aiSuggestion.priority}</span>
+            <p className="text-textSecondary">
+              Suggested Category: <span className="text-textPrimary font-bold">{aiSuggestion.categoryName}</span> • Predicted Priority: <span className="text-textPrimary font-bold">{aiSuggestion.priority}</span>
             </p>
             {aiSuggestion.reason && (
-              <p className="text-gray-400 italic">"Reason: {aiSuggestion.reason}"</p>
+              <p className="text-textMuted italic">"Reason: {aiSuggestion.reason}"</p>
             )}
             <div className="flex gap-2 pt-1">
               <button
@@ -235,7 +235,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
               <button
                 type="button"
                 onClick={() => setAiSuggestion(null)}
-                className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-[10px] transition"
+                className="py-1 px-2.5 rounded-lg bg-bgSecondary hover:bg-slate-700 text-textSecondary text-[10px] transition"
               >
                 Ignore
               </button>
@@ -244,23 +244,23 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
         )}
 
         {kbRecommendations.length > 0 && (
-          <div className="p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-3 text-xs animate-fadeIn">
-            <h4 className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+          <div className="p-4 bg-bgSurface border border-slate-200/40 border border-borderDefault rounded-xl space-y-3 text-xs animate-fadeIn">
+            <h4 className="text-textMuted font-bold uppercase tracking-wider text-[10px]">
               📚 Suggested Knowledge Base Solutions
             </h4>
             <div className="space-y-2">
               {kbRecommendations.map(art => (
-                <div key={art.id} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between gap-3">
+                <div key={art.id} className="p-3 bg-bgSecondary border border-borderDefault rounded-xl flex items-center justify-between gap-3">
                   <div>
-                    <h5 className="font-bold text-gray-200">{art.title}</h5>
-                    <p className="text-[10px] text-gray-500">{art.categoryName}</p>
-                    <p className="text-gray-400 mt-1 italic">"{art.explanation}"</p>
+                    <h5 className="font-bold text-textSecondary">{art.title}</h5>
+                    <p className="text-[10px] text-textDisabled">{art.categoryName}</p>
+                    <p className="text-textMuted mt-1 italic">"{art.explanation}"</p>
                   </div>
                   <a
                     href={`/kb/${art.slug}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[10px] rounded-lg transition whitespace-nowrap"
+                    className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary font-bold text-[10px] rounded-lg transition whitespace-nowrap"
                   >
                     Open Article
                   </a>
@@ -271,26 +271,26 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
         )}
 
         {aiSuggestion && (
-          <div className="p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-3 text-xs animate-fadeIn">
-            <h4 className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+          <div className="p-4 bg-bgSurface border border-slate-200/40 border border-borderDefault rounded-xl space-y-3 text-xs animate-fadeIn">
+            <h4 className="text-textMuted font-bold uppercase tracking-wider text-[10px]">
               ⚠ Similar Existing Tickets
             </h4>
             {duplicates.length > 0 ? (
               <div className="space-y-2">
                 {duplicates.map(ticket => (
-                  <div key={ticket.ticketId} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between gap-3 animate-fadeIn">
+                  <div key={ticket.ticketId} className="p-3 bg-bgSecondary border border-borderDefault rounded-xl flex items-center justify-between gap-3 animate-fadeIn">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-indigo-400 font-bold text-[10px]">{ticket.ticketNumber}</span>
-                        <h5 className="font-bold text-gray-200">{ticket.title}</h5>
+                        <span className="font-mono text-primary font-bold text-[10px]">{ticket.ticketNumber}</span>
+                        <h5 className="font-bold text-textSecondary">{ticket.title}</h5>
                       </div>
-                      <p className="text-gray-400 mt-1 italic">"{ticket.explanation}"</p>
+                      <p className="text-textMuted mt-1 italic">"{ticket.explanation}"</p>
                     </div>
                     <a
                       href={`/tickets?id=${ticket.ticketId}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[10px] rounded-lg transition whitespace-nowrap"
+                      className="py-1.5 px-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary font-bold text-[10px] rounded-lg transition whitespace-nowrap"
                     >
                       Open Ticket
                     </a>
@@ -298,19 +298,19 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 italic">No similar tickets found.</p>
+              <p className="text-textDisabled italic">No similar tickets found.</p>
             )}
           </div>
         )}
       </div>
 
       {/* Action triggers */}
-      <div className="flex gap-4 pt-4 border-t border-white/5">
+      <div className="flex gap-4 pt-4 border-t border-borderDefault">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="w-1/2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-semibold text-sm transition border border-white/5"
+          className="w-1/2 py-3 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-sm transition border border-borderDefault"
         >
           Cancel
         </button>
@@ -321,7 +321,7 @@ export default function TicketForm({ ticket = null, onSubmit, onCancel, loading 
         >
           {loading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-borderDefault border-t-white rounded-full animate-spin"></div>
               Saving...
             </>
           ) : (

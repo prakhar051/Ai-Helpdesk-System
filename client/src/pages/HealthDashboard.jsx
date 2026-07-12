@@ -117,17 +117,17 @@ export default function HealthDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-200 p-6 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-bgBase text-textSecondary p-6 flex flex-col items-center justify-center">
       {/* Title Header */}
       <div className="w-full max-w-5xl mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg shadow-indigo-500/40 flex items-center justify-center font-bold text-white text-lg">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg shadow-indigo-500/40 flex items-center justify-center font-bold text-textPrimary text-lg">
           A
         </div>
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-textPrimary to-textSecondary bg-clip-text text-transparent">
             Apex AI Helpdesk Diagnostics & Testing Panel
           </h2>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-textMuted">
             Phase 2: Authentication Infrastructure & Frontend Context Verification
           </p>
         </div>
@@ -136,9 +136,9 @@ export default function HealthDashboard() {
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         
         {/* Left Column: Diagnostics Card */}
-        <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl transition duration-500 hover:border-indigo-500/20">
-          <h2 className="text-lg font-bold text-white mb-2">System Diagnostics</h2>
-          <p className="text-sm text-gray-400 mb-6">
+        <div className="bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl transition duration-500 hover:border-indigo-500/20">
+          <h2 className="text-lg font-bold text-textPrimary mb-2">System Diagnostics</h2>
+          <p className="text-sm text-textMuted mb-6">
             Real-time status check for database connectivity.
           </p>
 
@@ -153,7 +153,7 @@ export default function HealthDashboard() {
               </div>
               
               {healthData && (
-                <div className="space-y-2 border-t border-white/5 pt-4 text-sm text-gray-400">
+                <div className="space-y-2 border-t border-borderDefault pt-4 text-sm text-textMuted">
                   <div className="flex justify-between">
                     <span>Server:</span>
                     <span className="text-emerald-400 font-semibold">{healthData.server}</span>
@@ -174,28 +174,28 @@ export default function HealthDashboard() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5 text-sm">
+              <div className="space-y-3 bg-bgSecondary p-4 rounded-xl border border-borderDefault text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Server Health Status:</span>
+                  <span className="text-textMuted">Server Health Status:</span>
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold uppercase bg-emerald-500/10 text-emerald-400">
                     {healthData.server}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">PostgreSQL Connection:</span>
+                  <span className="text-textMuted">PostgreSQL Connection:</span>
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold uppercase bg-emerald-500/10 text-emerald-400">
                     {healthData.database}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Server Uptime:</span>
-                  <span className="text-gray-200 font-mono">
+                  <span className="text-textMuted">Server Uptime:</span>
+                  <span className="text-textSecondary font-mono">
                     {Math.round(healthData.uptime)}s
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Diagnostics Check:</span>
-                  <span className="text-gray-200 font-mono text-xs">
+                  <span className="text-textMuted">Diagnostics Check:</span>
+                  <span className="text-textSecondary font-mono text-xs">
                     {new Date(healthData.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
@@ -212,9 +212,9 @@ export default function HealthDashboard() {
         </div>
 
         {/* Right Column: Authentication Verification */}
-        <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl transition duration-500 hover:border-indigo-500/20">
-          <h2 className="text-lg font-bold text-white mb-2">Auth Context & JWT Verification</h2>
-          <p className="text-sm text-gray-400 mb-6">
+        <div className="bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl transition duration-500 hover:border-indigo-500/20">
+          <h2 className="text-lg font-bold text-textPrimary mb-2">Auth Context & JWT Verification</h2>
+          <p className="text-sm text-textMuted mb-6">
             Verify user registration, login, JWT storage, and route authorization.
           </p>
 
@@ -234,7 +234,7 @@ export default function HealthDashboard() {
                 <div>
                   <span className="font-semibold block">Authentication State:</span>
                   {user ? (
-                    <span>Logged in as: <strong className="text-white font-mono">{user.name}</strong> ({user.role})</span>
+                    <span>Logged in as: <strong className="text-textPrimary font-mono">{user.name}</strong> ({user.role})</span>
                   ) : (
                     <span>Not Authenticated</span>
                   )}
@@ -242,7 +242,7 @@ export default function HealthDashboard() {
                 {user && (
                   <button 
                     onClick={handleLogout}
-                    className="py-1 px-3 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 font-medium text-xs transition duration-150"
+                    className="py-1 px-3 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-textPrimary border border-red-500/30 font-medium text-xs transition duration-150"
                   >
                     Logout
                   </button>
@@ -265,42 +265,42 @@ export default function HealthDashboard() {
               {!user ? (
                 <form className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-xs text-gray-400 uppercase font-semibold">Name (Only for Registration)</label>
+                    <label className="text-xs text-textMuted uppercase font-semibold">Name (Only for Registration)</label>
                     <input 
                       type="text" 
                       placeholder="John Doe" 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-lg px-3 py-2 text-sm text-textPrimary focus:outline-none focus:border-indigo-500/50"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs text-gray-400 uppercase font-semibold">Email Address</label>
+                    <label className="text-xs text-textMuted uppercase font-semibold">Email Address</label>
                     <input 
                       type="email" 
                       placeholder="john@example.com" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-lg px-3 py-2 text-sm text-textPrimary focus:outline-none focus:border-indigo-500/50"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs text-gray-400 uppercase font-semibold">Password</label>
+                    <label className="text-xs text-textMuted uppercase font-semibold">Password</label>
                     <input 
                       type="password" 
                       placeholder="••••••••" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-lg px-3 py-2 text-sm text-textPrimary focus:outline-none focus:border-indigo-500/50"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 pt-2">
                     <button 
                       onClick={handleRegister}
-                      className="py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 font-medium text-sm transition duration-150"
+                      className="py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-primary-hover hover:text-textPrimary border border-indigo-500/30 font-medium text-sm transition duration-150"
                     >
                       Register User
                     </button>
@@ -315,24 +315,24 @@ export default function HealthDashboard() {
               ) : (
                 /* Authenticated View: API Testing Suite */
                 <div className="space-y-4">
-                  <div className="p-3 bg-white/5 border border-white/5 rounded-xl space-y-2 text-xs">
-                    <div><span className="text-gray-400">User ID:</span> <span className="font-mono text-gray-300">{user.id}</span></div>
-                    <div><span className="text-gray-400">Email:</span> <span className="font-mono text-gray-300">{user.email}</span></div>
-                    <div><span className="text-gray-400">Role:</span> <span className="px-2 py-0.5 rounded bg-slate-800 text-indigo-300 font-semibold">{user.role}</span></div>
+                  <div className="p-3 bg-bgSecondary border border-borderDefault rounded-xl space-y-2 text-xs">
+                    <div><span className="text-textMuted">User ID:</span> <span className="font-mono text-textSecondary">{user.id}</span></div>
+                    <div><span className="text-textMuted">Email:</span> <span className="font-mono text-textSecondary">{user.email}</span></div>
+                    <div><span className="text-textMuted">Role:</span> <span className="px-2 py-0.5 rounded bg-bgSecondary text-primary-hover font-semibold">{user.role}</span></div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs text-gray-400 uppercase font-semibold block">Test Protected API Endpoints</label>
+                    <label className="text-xs text-textMuted uppercase font-semibold block">Test Protected API Endpoints</label>
                     <div className="grid grid-cols-3 gap-2">
                       <button 
                         onClick={() => testProtectedRoute('me')}
-                        className="py-2 px-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 font-medium text-xs border border-white/10 transition duration-150"
+                        className="py-2 px-1 rounded-lg bg-bgSecondary hover:bg-bgSecondary text-textSecondary font-medium text-xs border border-borderDefault transition duration-150"
                       >
                         GET /me
                       </button>
                       <button 
                         onClick={() => testProtectedRoute('agent-only')}
-                        className="py-2 px-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 font-medium text-xs border border-indigo-500/20 transition duration-150"
+                        className="py-2 px-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-primary-hover font-medium text-xs border border-indigo-500/20 transition duration-150"
                       >
                         Agent Only
                       </button>
@@ -366,7 +366,7 @@ export default function HealthDashboard() {
                     </div>
                   )}
 
-                  <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-center text-xs text-indigo-400">
+                  <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-center text-xs text-primary">
                     💡 <strong>Test Session Restore:</strong> Refresh the page to verify that the auth state is automatically restored!
                   </div>
                 </div>

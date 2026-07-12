@@ -65,21 +65,21 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-200 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-bgBase text-textSecondary p-6 flex flex-col items-center justify-center relative overflow-hidden">
       {/* Visual background decorations */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-      <div className="w-full max-w-lg bg-slate-900/60 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-2xl relative z-10">
+      <div className="w-full max-w-lg bg-bgSurface border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow relative z-10">
         
         {/* Header navigation */}
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-borderDefault">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-gray-400 hover:text-white transition duration-150">
+            <Link to="/dashboard" className="text-textMuted hover:text-textPrimary transition duration-150">
               ← Dashboard
             </Link>
           </div>
-          <h2 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-textPrimary to-textSecondary bg-clip-text text-transparent">
             User Profile
           </h2>
         </div>
@@ -101,29 +101,29 @@ export default function Profile() {
           <div className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-2xl font-semibold text-white">{user.name}</h3>
-                <p className="text-sm text-gray-400 mt-1">{user.email}</p>
+                <h3 className="text-2xl font-semibold text-textPrimary">{user.name}</h3>
+                <p className="text-sm text-textMuted mt-1">{user.email}</p>
               </div>
-              <span className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs font-semibold text-indigo-400">
+              <span className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs font-semibold text-primary">
                 {user.role}
               </span>
             </div>
 
-            <div className="space-y-4 bg-white/5 p-5 rounded-2xl border border-white/5 text-sm">
+            <div className="space-y-4 bg-bgSecondary p-5 rounded-2xl border border-borderDefault text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Account ID</span>
-                <span className="font-mono text-xs text-gray-300">{user.id}</span>
+                <span className="text-textMuted font-medium">Account ID</span>
+                <span className="font-mono text-xs text-textSecondary">{user.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Status</span>
+                <span className="text-textMuted font-medium">Status</span>
                 <span className="text-emerald-400 flex items-center gap-1.5 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Active
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400 font-medium">Created Date</span>
-                <span className="text-gray-300">
+                <span className="text-textMuted font-medium">Created Date</span>
+                <span className="text-textSecondary">
                   {new Date(user.createdAt).toLocaleDateString(undefined, {
                     year: 'numeric',
                     month: 'long',
@@ -144,24 +144,24 @@ export default function Profile() {
           /* Profile Edit Form */
           <form onSubmit={handleUpdate} noValidate className="space-y-5">
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 uppercase font-semibold block">Full Name</label>
+              <label className="text-xs text-textMuted uppercase font-semibold block">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
-                className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+                className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 uppercase font-semibold block">Email Address</label>
+              <label className="text-xs text-textMuted uppercase font-semibold block">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+                className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
               />
             </div>
 
@@ -170,7 +170,7 @@ export default function Profile() {
                 type="button"
                 onClick={handleCancel}
                 disabled={loading}
-                className="w-1/2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-semibold text-sm transition duration-150 border border-white/5"
+                className="w-1/2 py-3 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-sm transition duration-150 border border-borderDefault"
               >
                 Cancel
               </button>
@@ -181,7 +181,7 @@ export default function Profile() {
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-borderDefault border-t-white rounded-full animate-spin"></div>
                     Saving...
                   </>
                 ) : (

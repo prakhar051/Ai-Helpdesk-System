@@ -14,12 +14,12 @@ export default function ArticleCard({ article, onSelect }) {
   return (
     <div 
       onClick={() => onSelect(article)}
-      className="bg-slate-900/40 hover:bg-slate-900/70 border border-white/5 hover:border-white/10 rounded-2xl p-5 shadow-lg transition duration-200 cursor-pointer group flex flex-col justify-between h-full relative"
+      className="bg-bgSurface border border-slate-200/40 hover:bg-bgSurface border border-slate-200/70 border border-borderDefault hover:border-borderDefault rounded-2xl p-5 shadow-lg transition duration-200 cursor-pointer group flex flex-col justify-between h-full relative"
     >
       <div>
         {/* Category & Status badges */}
         <div className="flex justify-between items-center mb-3">
-          <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+          <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-primary uppercase tracking-wider">
             {article.category}
           </span>
           <div className="flex gap-2">
@@ -37,22 +37,22 @@ export default function ArticleCard({ article, onSelect }) {
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-white group-hover:text-indigo-400 transition duration-150 line-clamp-2">
+        <h3 className="text-base font-bold text-textPrimary group-hover:text-primary transition duration-150 line-clamp-2">
           {article.title}
         </h3>
 
         {/* Content Snippet */}
-        <p className="text-xs text-gray-400 mt-2 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-textMuted mt-2 line-clamp-3 leading-relaxed">
           {snippet}
         </p>
       </div>
 
       {/* Footer Info */}
-      <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-[10px] text-gray-500">
+      <div className="mt-4 pt-3 border-t border-borderDefault flex justify-between items-center text-[10px] text-textDisabled">
         <div>
-          By <span className="text-gray-300 font-medium">{article.author?.name}</span> • {formattedDate}
+          By <span className="text-textSecondary font-medium">{article.author?.name}</span> • {formattedDate}
         </div>
-        <div className="flex items-center gap-1.5 font-semibold text-gray-400">
+        <div className="flex items-center gap-1.5 font-semibold text-textMuted">
           👁 {article.viewCount} views
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function ArticleCard({ article, onSelect }) {
       {article.tags && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3">
           {article.tags.map((tag, idx) => (
-            <span key={idx} className="text-[9px] bg-slate-800 text-gray-400 px-2 py-0.5 rounded-md">
+            <span key={idx} className="text-[9px] bg-bgSecondary text-textMuted px-2 py-0.5 rounded-md">
               #{tag}
             </span>
           ))}

@@ -81,7 +81,7 @@ function App() {
               path="/protected-test" 
               element={
                 <ProtectedRoute>
-                  <div className="min-h-screen bg-[#0B0F19] text-emerald-400 flex items-center justify-center font-bold">
+                  <div className="min-h-screen bg-bgBase text-emerald-400 flex items-center justify-center font-bold">
                     🔐 Access Granted: Welcome to the Protected Admin/Agent Sandbox!
                   </div>
                 </ProtectedRoute>

@@ -10,7 +10,7 @@ export default function Loader({ size = 'md', text = 'Loading...' }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className={`${sizeClasses[size] || sizeClasses.md} rounded-full border-indigo-500/10 border-t-indigo-500 animate-spin`}></div>
-      {text && <span className="text-gray-400 text-sm font-medium">{text}</span>}
+      {text && <span className="text-textMuted text-sm font-medium">{text}</span>}
     </div>
   );
 }

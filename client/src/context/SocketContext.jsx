@@ -86,7 +86,7 @@ export const SocketProvider = ({ children }) => {
       {/* Floating Toast Notification Overlay */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 w-80 max-w-[calc(100vw-3rem)] pointer-events-none">
         {toasts.map((t) => {
-          let bgColor = 'bg-slate-900/90 border-slate-700/50';
+          let bgColor = 'bg-bgSurface border border-slate-200/90 border-borderDefault/50';
           let iconColor = 'text-blue-400';
           let icon = 'ℹ️';
 
@@ -120,7 +120,7 @@ export const SocketProvider = ({ children }) => {
               </div>
               <div className="flex-1 space-y-0.5">
                 <h5 className="font-bold text-gray-100">{t.title}</h5>
-                <p className="text-gray-400 leading-relaxed font-sans">{t.message}</p>
+                <p className="text-textMuted leading-relaxed font-sans">{t.message}</p>
               </div>
             </div>
           );

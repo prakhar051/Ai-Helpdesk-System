@@ -26,7 +26,7 @@ export default function CategoryForm({ category = null, onSubmit, onCancel, load
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
-      <h2 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      <h2 className="text-xl font-bold bg-gradient-to-r from-textPrimary to-textSecondary bg-clip-text text-transparent">
         {category ? 'Edit Category Details' : 'Create Helpdesk Category'}
       </h2>
 
@@ -38,37 +38,37 @@ export default function CategoryForm({ category = null, onSubmit, onCancel, load
 
       {/* Category Name */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Category Name</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Category Name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={loading}
           placeholder="e.g. Network Issues"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
         />
       </div>
 
       {/* Category Description */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Description</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={loading}
           placeholder="Describe what kind of tickets fit under this category..."
           rows="5"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50 resize-y leading-relaxed"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50 resize-y leading-relaxed"
         />
       </div>
 
       {/* Form Trigger Buttons */}
-      <div className="flex gap-4 pt-4 border-t border-white/5">
+      <div className="flex gap-4 pt-4 border-t border-borderDefault">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="w-1/2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-semibold text-sm transition border border-white/5"
+          className="w-1/2 py-3 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-sm transition border border-borderDefault"
         >
           Cancel
         </button>
@@ -79,7 +79,7 @@ export default function CategoryForm({ category = null, onSubmit, onCancel, load
         >
           {loading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-borderDefault border-t-white rounded-full animate-spin"></div>
               Saving...
             </>
           ) : (

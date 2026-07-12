@@ -134,17 +134,17 @@ export default function CommentSection({ ticketId }) {
   // Role Badge Styling
   const roleBadges = {
     ADMIN: 'bg-red-500/10 border-red-500/20 text-red-400',
-    AGENT: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
+    AGENT: 'bg-indigo-500/10 border-indigo-500/20 text-primary',
     CUSTOMER: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
   };
 
   return (
-    <div className="space-y-6 pt-6 border-t border-white/5">
+    <div className="space-y-6 pt-6 border-t border-borderDefault">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-textMuted">
           Collaboration Thread
         </h3>
-        <span className="text-xs text-gray-500">{comments.length} comments</span>
+        <span className="text-xs text-textDisabled">{comments.length} comments</span>
       </div>
 
       {error && (
@@ -160,7 +160,7 @@ export default function CommentSection({ ticketId }) {
             <div className="w-6 h-6 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-6 text-gray-500 text-xs italic">
+          <div className="text-center py-6 text-textDisabled text-xs italic">
             No comments yet. Start the conversation below.
           </div>
         ) : (
@@ -171,14 +171,14 @@ export default function CommentSection({ ticketId }) {
               const isEditing = editingCommentId === comment.id;
 
               return (
-                <div key={comment.id} className="bg-slate-900/30 border border-white/5 rounded-xl p-4 space-y-2">
+                <div key={comment.id} className="bg-bgSurface border border-slate-200/30 border border-borderDefault rounded-xl p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <strong className="text-xs text-white">{comment.author.name}</strong>
+                      <strong className="text-xs text-textPrimary">{comment.author.name}</strong>
                       <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase border ${roleBadges[comment.author.role] || roleBadges.CUSTOMER}`}>
                         {comment.author.role}
                       </span>
-                      <span className="text-[10px] text-gray-500">
+                      <span className="text-[10px] text-textDisabled">
                         {formatTimestamp(comment.createdAt)}
                       </span>
                     </div>
@@ -192,7 +192,7 @@ export default function CommentSection({ ticketId }) {
                             setEditContent(comment.content);
                           }}
                           disabled={actionLoading}
-                          className="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium"
+                          className="text-[10px] text-primary hover:text-primary-hover font-medium"
                         >
                           Edit
                         </button>
@@ -217,7 +217,7 @@ export default function CommentSection({ ticketId }) {
                         onChange={(e) => setEditContent(e.target.value)}
                         disabled={actionLoading}
                         rows="3"
-                        className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/50 resize-y"
+                        className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textPrimary focus:outline-none focus:border-indigo-500/50 resize-y"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -226,7 +226,7 @@ export default function CommentSection({ ticketId }) {
                             setEditContent('');
                           }}
                           disabled={actionLoading}
-                          className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-200 text-[10px] font-semibold transition"
+                          className="py-1 px-2.5 rounded-lg bg-bgSecondary hover:bg-slate-700 text-textSecondary text-[10px] font-semibold transition"
                         >
                           Cancel
                         </button>
@@ -240,7 +240,7 @@ export default function CommentSection({ ticketId }) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap font-sans">
+                    <p className="text-xs text-textSecondary leading-relaxed whitespace-pre-wrap font-sans">
                       {comment.content}
                     </p>
                   )}
@@ -252,14 +252,14 @@ export default function CommentSection({ ticketId }) {
       </div>
 
       {/* Add comment Form */}
-      <form onSubmit={handleAddComment} className="space-y-2 pt-2 border-t border-white/5">
+      <form onSubmit={handleAddComment} className="space-y-2 pt-2 border-t border-borderDefault">
         <textarea
           placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           disabled={actionLoading}
           rows="3"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500/50 placeholder-gray-500 resize-y leading-relaxed"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-textPrimary focus:outline-none focus:border-indigo-500/50 placeholder-textDisabled resize-y leading-relaxed"
         />
         <div className="flex justify-end">
           <button

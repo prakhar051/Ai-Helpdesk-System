@@ -518,20 +518,20 @@ export default function Tickets() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-200 p-6 flex flex-col items-center justify-start relative overflow-hidden">
+    <div className="min-h-screen bg-bgBase text-textSecondary p-6 flex flex-col items-center justify-start relative overflow-hidden">
       {/* Visual glowing layout nodes */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <div className="w-full max-w-6xl bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl z-10">
+      <div className="w-full max-w-6xl bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl z-10">
         
         {/* Navigation & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-white/5 mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-borderDefault mb-6 gap-4">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-gray-400 hover:text-white transition text-sm font-medium">
+            <Link to="/dashboard" className="text-textMuted hover:text-textPrimary transition text-sm font-medium">
               ← Dashboard
             </Link>
-            <span className="text-white font-bold text-xl ml-2">Support Tickets Portal</span>
+            <span className="text-textPrimary font-bold text-xl ml-2">Support Tickets Portal</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -539,13 +539,13 @@ export default function Tickets() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleExport('pdf')}
-                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-primary-hover border border-indigo-500/20 font-semibold text-xs transition"
                 >
                   Export PDF
                 </button>
                 <button
                   onClick={() => handleExport('csv')}
-                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-primary-hover border border-indigo-500/20 font-semibold text-xs transition"
                 >
                   Export CSV
                 </button>
@@ -563,7 +563,7 @@ export default function Tickets() {
                 + New Ticket
               </button>
             )}
-            <div className="text-xs text-indigo-400 font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <div className="text-xs text-primary font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
               User: {user?.name} ({user?.role})
             </div>
           </div>
@@ -596,12 +596,12 @@ export default function Tickets() {
                     placeholder="Search by ID (e.g. HD-000001), keyword, names, status, or priority..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition placeholder-textDisabled"
                   />
                   {search && (
                     <button
                       onClick={() => setSearch('')}
-                      className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+                      className="absolute right-3 top-2.5 text-textDisabled hover:text-textSecondary text-xs font-semibold"
                     >
                       Clear
                     </button>
@@ -613,7 +613,7 @@ export default function Tickets() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="createdAt">Sort: Created Date</option>
                     <option value="updatedAt">Sort: Updated Date</option>
@@ -622,7 +622,7 @@ export default function Tickets() {
                   </select>
                   <button
                     onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                    className="px-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 text-xs font-semibold rounded-xl transition flex items-center justify-center whitespace-nowrap"
+                    className="px-3 bg-indigo-500/10 border border-indigo-500/20 text-primary hover:bg-indigo-500/20 text-xs font-semibold rounded-xl transition flex items-center justify-center whitespace-nowrap"
                   >
                     {sortOrder === 'asc' ? 'Asc ▲' : 'Desc ▼'}
                   </button>
@@ -633,7 +633,7 @@ export default function Tickets() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="">All Statuses</option>
                     <option value="OPEN">Open</option>
@@ -653,7 +653,7 @@ export default function Tickets() {
                   <select
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="">All Priorities</option>
                     <option value="LOW">Low</option>
@@ -668,7 +668,7 @@ export default function Tickets() {
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="">All Categories</option>
                     <option value="unassigned">Uncategorized</option>
@@ -683,21 +683,21 @@ export default function Tickets() {
                 {/* Date range filters */}
                 <div className="flex gap-2 col-span-1 sm:col-span-2">
                   <div className="flex items-center gap-1.5 w-1/2">
-                    <span className="text-[10px] text-gray-500 uppercase font-semibold">Start</span>
+                    <span className="text-[10px] text-textDisabled uppercase font-semibold">Start</span>
                     <input
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                     />
                   </div>
                   <div className="flex items-center gap-1.5 w-1/2">
-                    <span className="text-[10px] text-gray-500 uppercase font-semibold">End</span>
+                    <span className="text-[10px] text-textDisabled uppercase font-semibold">End</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                     />
                   </div>
                 </div>
@@ -705,8 +705,8 @@ export default function Tickets() {
 
               {/* Toggles row (only visible/meaningful depending on roles) */}
               {user?.role !== 'CUSTOMER' && (
-                <div className="flex flex-wrap items-center gap-4 bg-slate-950/20 border border-white/5 rounded-xl p-3 text-xs text-gray-300">
-                  <span className="font-semibold text-gray-400">Quick Filters:</span>
+                <div className="flex flex-wrap items-center gap-4 bg-bgBase/20 border border-borderDefault rounded-xl p-3 text-xs text-textSecondary">
+                  <span className="font-semibold text-textMuted">Quick Filters:</span>
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
@@ -717,7 +717,7 @@ export default function Tickets() {
                           setUnassignedFilter(false); // Mutually exclusive
                         }
                       }}
-                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                      className="rounded bg-bgBase border-borderDefault text-indigo-600 focus:ring-0 cursor-pointer"
                     />
                     <span>Assigned to Me</span>
                   </label>
@@ -726,7 +726,7 @@ export default function Tickets() {
                       type="checkbox"
                       checked={createdByMe}
                       onChange={(e) => setCreatedByMe(e.target.checked)}
-                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                      className="rounded bg-bgBase border-borderDefault text-indigo-600 focus:ring-0 cursor-pointer"
                     />
                     <span>Created by Me</span>
                   </label>
@@ -740,7 +740,7 @@ export default function Tickets() {
                           setAssignedToMe(false); // Mutually exclusive
                         }
                       }}
-                      className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                      className="rounded bg-bgBase border-borderDefault text-indigo-600 focus:ring-0 cursor-pointer"
                     />
                     <span>Unassigned</span>
                   </label>
@@ -750,7 +750,7 @@ export default function Tickets() {
               {/* Active badges & reset row */}
               {hasActiveFilters() && (
                 <div className="flex flex-wrap items-center gap-2 pt-2">
-                  <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+                  <span className="text-[10px] text-textDisabled uppercase font-bold tracking-wider">Active Filters:</span>
                   {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
                   {statusFilter && <FilterBadge label={`Status: ${statusFilter}`} onClear={() => setStatusFilter('')} />}
                   {priorityFilter && <FilterBadge label={`Priority: ${priorityFilter}`} onClear={() => setPriorityFilter('')} />}
@@ -778,13 +778,13 @@ export default function Tickets() {
             {/* Grid Container */}
             <div className="relative min-h-[300px]">
               {loading ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/20 z-20 rounded-2xl">
+                <div className="absolute inset-0 flex items-center justify-center bg-bgBase/20 z-20 rounded-2xl">
                   <div className="w-8 h-8 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
                 </div>
               ) : tickets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-24 text-gray-400">
+                <div className="flex flex-col items-center justify-center text-center py-24 text-textMuted">
                   <span className="text-lg font-medium">No tickets found</span>
-                  <p className="text-xs text-gray-500 mt-1">Submit a new request or adjust filters.</p>
+                  <p className="text-xs text-textDisabled mt-1">Submit a new request or adjust filters.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -801,22 +801,22 @@ export default function Tickets() {
 
             {/* Pagination Controls */}
             {tickets.length > 0 && !loading && (
-              <div className="flex justify-between items-center mt-8 pt-4 border-t border-white/5 text-sm text-gray-400">
+              <div className="flex justify-between items-center mt-8 pt-4 border-t border-borderDefault text-sm text-textMuted">
                 <div>
-                  Showing page <strong className="text-white">{page}</strong> of <strong className="text-white">{pages}</strong> ({total} total tickets)
+                  Showing page <strong className="text-textPrimary">{page}</strong> of <strong className="text-textPrimary">{pages}</strong> ({total} total tickets)
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="py-1.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-white/5 font-semibold text-xs transition disabled:opacity-40"
+                    className="py-1.5 px-4 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary border border-borderDefault font-semibold text-xs transition disabled:opacity-40"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(pages, p + 1))}
                     disabled={page === pages}
-                    className="py-1.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 border border-white/5 font-semibold text-xs transition disabled:opacity-40"
+                    className="py-1.5 px-4 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary border border-borderDefault font-semibold text-xs transition disabled:opacity-40"
                   >
                     Next
                   </button>
@@ -835,7 +835,7 @@ export default function Tickets() {
                 setSuccess(null);
                 setView('LIST');
               }}
-              className="text-sm text-gray-400 hover:text-white transition"
+              className="text-sm text-textMuted hover:text-textPrimary transition"
             >
               ← Back to Queue
             </button>
@@ -844,19 +844,19 @@ export default function Tickets() {
               
               {/* Main reading content (col span 2) */}
               <div className="lg:col-span-2 space-y-4">
-                <div className="pb-4 border-b border-white/5">
+                <div className="pb-4 border-b border-borderDefault">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-bold text-indigo-400">
+                    <span className="font-mono text-sm font-bold text-primary">
                       HD-{selectedTicket.ticketNumber.toString().padStart(6, '0')}
                     </span>
-                    <h1 className="text-2xl font-bold text-white leading-tight">
+                    <h1 className="text-2xl font-bold text-textPrimary leading-tight">
                       {selectedTicket.title}
                     </h1>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-400">
+                  <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-textMuted">
                     <span>
-                      Created by <strong className="text-gray-200">{selectedTicket.customer?.name}</strong>
+                      Created by <strong className="text-textSecondary">{selectedTicket.customer?.name}</strong>
                     </span>
                     <span>•</span>
                     <span>
@@ -870,7 +870,7 @@ export default function Tickets() {
                 </div>
 
                 {/* Description Body */}
-                <div className="text-sm text-gray-300 leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/5 font-sans whitespace-pre-wrap min-h-[250px]">
+                <div className="text-sm text-textSecondary leading-relaxed bg-bgSecondary p-6 rounded-2xl border border-borderDefault font-sans whitespace-pre-wrap min-h-[250px]">
                   {selectedTicket.description}
                 </div>
 
@@ -879,7 +879,7 @@ export default function Tickets() {
                   <div className="flex justify-end pt-2">
                     <button
                       onClick={() => setView('EDIT')}
-                      className="py-1.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/5 font-semibold text-xs transition"
+                      className="py-1.5 px-4 rounded-xl bg-bgSecondary hover:bg-slate-700 border border-borderDefault font-semibold text-xs transition"
                     >
                       Edit Ticket Description
                     </button>
@@ -888,13 +888,13 @@ export default function Tickets() {
                 {/* AI Summary card */}
                 <div className="p-5 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl space-y-3 text-xs leading-relaxed">
                   <div className="flex items-center justify-between">
-                    <strong className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">
+                    <strong className="text-primary font-bold uppercase tracking-wider text-[10px]">
                       ✨ AI Ticket Summary
                     </strong>
                     {!ticketSummary && !summaryLoading && (
                       <button
                         onClick={handleGenerateSummary}
-                        className="py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition shadow-md shadow-indigo-600/10"
+                        className="py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-textPrimary font-bold text-[10px] transition shadow-md shadow-indigo-600/10"
                       >
                         Generate Summary
                       </button>
@@ -902,16 +902,16 @@ export default function Tickets() {
                   </div>
                   
                   {summaryLoading ? (
-                    <div className="flex items-center gap-2 text-gray-400 italic">
+                    <div className="flex items-center gap-2 text-textMuted italic">
                       <div className="w-3.5 h-3.5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
                       Summarizing discussion thread...
                     </div>
                   ) : ticketSummary ? (
-                    <p className="text-gray-300 font-sans">
+                    <p className="text-textSecondary font-sans">
                       {ticketSummary}
                     </p>
                   ) : (
-                    <p className="text-gray-500 italic">
+                    <p className="text-textDisabled italic">
                       Generate a quick AI summary of the ticket conversation thread.
                     </p>
                   )}
@@ -922,19 +922,19 @@ export default function Tickets() {
               </div>
 
               {/* Sidebar Action Widgets Panel */}
-              <div className="bg-slate-950/40 border border-white/5 rounded-2xl p-5 space-y-6 h-fit">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 pb-2 border-b border-white/5">
+              <div className="bg-bgBase/40 border border-borderDefault rounded-2xl p-5 space-y-6 h-fit">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-textMuted pb-2 border-b border-borderDefault">
                   Ticket Actions & Attributes
                 </h3>
 
                 {/* Status Toggles */}
                 <div className="space-y-2">
-                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Ticket Status</label>
+                  <label className="text-[10px] text-textDisabled uppercase font-semibold block">Ticket Status</label>
                   {user?.role !== 'CUSTOMER' ? (
                     <select
                       value={selectedTicket.status}
                       onChange={(e) => handleMetaUpdate('status', e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50"
                     >
                       <option value="OPEN">Open</option>
                       <option value="IN_PROGRESS">In Progress</option>
@@ -943,7 +943,7 @@ export default function Tickets() {
                       <option value="CLOSED">Closed</option>
                     </select>
                   ) : (
-                    <span className="inline-block px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold rounded-lg uppercase">
+                    <span className="inline-block px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-primary text-xs font-bold rounded-lg uppercase">
                       {selectedTicket.status}
                     </span>
                   )}
@@ -951,12 +951,12 @@ export default function Tickets() {
 
                 {/* Agent Assignment selection */}
                 <div className="space-y-2">
-                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Assigned Agent</label>
+                  <label className="text-[10px] text-textDisabled uppercase font-semibold block">Assigned Agent</label>
                   {user?.role === 'ADMIN' ? (
                     <select
                       value={selectedTicket.agentId || 'unassigned'}
                       onChange={(e) => handleMetaUpdate('agentId', e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50"
                     >
                       <option value="unassigned">Unassigned</option>
                       {agents.map(ag => (
@@ -967,7 +967,7 @@ export default function Tickets() {
                     </select>
                   ) : user?.role === 'AGENT' ? (
                     <div className="space-y-2">
-                      <div className="text-xs text-gray-300 font-semibold">
+                      <div className="text-xs text-textSecondary font-semibold">
                         {selectedTicket.agent ? selectedTicket.agent.name : 'Unassigned'}
                       </div>
                       {!selectedTicket.agentId && (
@@ -980,7 +980,7 @@ export default function Tickets() {
                       )}
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-300 font-semibold">
+                    <span className="text-xs text-textSecondary font-semibold">
                       {selectedTicket.agent ? selectedTicket.agent.name : 'Unassigned'}
                     </span>
                   )}
@@ -988,12 +988,12 @@ export default function Tickets() {
 
                 {/* Priority Selection Dropdown */}
                 <div className="space-y-2">
-                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Priority Level</label>
+                  <label className="text-[10px] text-textDisabled uppercase font-semibold block">Priority Level</label>
                   {user?.role !== 'CUSTOMER' ? (
                     <select
                       value={selectedTicket.priority}
                       onChange={(e) => handleMetaUpdate('priority', e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50"
                     >
                       <option value="LOW">Low</option>
                       <option value="MEDIUM">Medium</option>
@@ -1001,7 +1001,7 @@ export default function Tickets() {
                       <option value="URGENT">Urgent</option>
                     </select>
                   ) : (
-                    <span className="inline-block px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold rounded-lg uppercase">
+                    <span className="inline-block px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-primary text-xs font-bold rounded-lg uppercase">
                       {selectedTicket.priority}
                     </span>
                   )}
@@ -1009,12 +1009,12 @@ export default function Tickets() {
 
                 {/* Category Selection Dropdown */}
                 <div className="space-y-2">
-                  <label className="text-[10px] text-gray-500 uppercase font-semibold block">Category</label>
+                  <label className="text-[10px] text-textDisabled uppercase font-semibold block">Category</label>
                   {user?.role !== 'CUSTOMER' ? (
                     <select
                       value={selectedTicket.categoryId || 'unassigned'}
                       onChange={(e) => handleMetaUpdate('categoryId', e.target.value)}
-                      className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                      className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50"
                     >
                       <option value="unassigned">Uncategorized</option>
                       {categories.map(cat => (
@@ -1024,7 +1024,7 @@ export default function Tickets() {
                       ))}
                     </select>
                   ) : (
-                    <span className="inline-block px-3 py-1.5 bg-white/5 border border-white/10 text-gray-300 text-xs font-bold rounded-lg uppercase">
+                    <span className="inline-block px-3 py-1.5 bg-bgSurface border border-slate-200 shadow-sm text-textSecondary text-xs font-bold rounded-lg uppercase">
                       {selectedTicket.category ? selectedTicket.category.name : 'Uncategorized'}
                     </span>
                   )}
@@ -1033,8 +1033,8 @@ export default function Tickets() {
                 {/* AI Reason explanation */}
                 {selectedTicket.aiReason && (
                   <div className="space-y-2 p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-xs">
-                    <label className="text-[10px] text-indigo-400 uppercase font-bold block">✨ AI Recommendation Context</label>
-                    <p className="text-gray-300 leading-relaxed italic">
+                    <label className="text-[10px] text-primary uppercase font-bold block">✨ AI Recommendation Context</label>
+                    <p className="text-textSecondary leading-relaxed italic">
                       "{selectedTicket.aiReason}"
                     </p>
                   </div>
@@ -1042,14 +1042,14 @@ export default function Tickets() {
 
                 {/* AI KB Solutions Recommendations */}
                 {kbRecs.length > 0 && (
-                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
-                    <label className="text-[10px] text-gray-500 uppercase font-bold block">📚 Recommended Articles</label>
+                  <div className="space-y-3 p-3 bg-bgSurface border border-slate-200/50 border border-borderDefault rounded-xl text-xs">
+                    <label className="text-[10px] text-textDisabled uppercase font-bold block">📚 Recommended Articles</label>
                     <div className="space-y-2">
                       {kbRecs.map(art => (
-                        <div key={art.id} className="p-2.5 bg-white/5 border border-white/5 rounded-lg space-y-1">
-                          <h5 className="font-bold text-gray-200">{art.title}</h5>
-                          <p className="text-[9px] text-gray-500 uppercase">{art.categoryName}</p>
-                          <p className="text-gray-400 text-[10px] leading-relaxed italic">
+                        <div key={art.id} className="p-2.5 bg-bgSecondary border border-borderDefault rounded-lg space-y-1">
+                          <h5 className="font-bold text-textSecondary">{art.title}</h5>
+                          <p className="text-[9px] text-textDisabled uppercase">{art.categoryName}</p>
+                          <p className="text-textMuted text-[10px] leading-relaxed italic">
                             "{art.explanation}"
                           </p>
                           <div className="pt-1.5 flex justify-end">
@@ -1057,7 +1057,7 @@ export default function Tickets() {
                               href={`/kb/${art.slug}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="py-1 px-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 font-bold text-[9px] rounded transition"
+                              className="py-1 px-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary font-bold text-[9px] rounded transition"
                             >
                               Open Article
                             </a>
@@ -1070,15 +1070,15 @@ export default function Tickets() {
 
                 {/* AI Suggested Reply block for support staff */}
                 {user?.role !== 'CUSTOMER' && (
-                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
+                  <div className="space-y-3 p-3 bg-bgSurface border border-slate-200/50 border border-borderDefault rounded-xl text-xs">
                     <div className="flex items-center justify-between">
-                      <label className="text-[10px] text-gray-500 uppercase font-bold block">✨ AI Suggested Reply</label>
+                      <label className="text-[10px] text-textDisabled uppercase font-bold block">✨ AI Suggested Reply</label>
                       {copied && (
                         <span className="text-[9px] text-green-400 font-semibold animate-pulse">Copied!</span>
                       )}
                     </div>
                     {replyLoading ? (
-                      <div className="flex items-center gap-2 text-gray-400 italic">
+                      <div className="flex items-center gap-2 text-textMuted italic">
                         <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
                         Generating reply draft...
                       </div>
@@ -1088,20 +1088,20 @@ export default function Tickets() {
                           value={suggestedReply}
                           onChange={(e) => setSuggestedReply(e.target.value)}
                           rows={4}
-                          className="w-full bg-[#161C2C] border border-white/10 rounded-xl p-2.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50"
+                          className="w-full bg-bgBase border border-slate-300 rounded-xl p-2.5 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50"
                         />
                         <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={handleCopyReply}
-                            className="flex-1 py-1 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition"
+                            className="flex-1 py-1 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-textPrimary font-bold text-[10px] transition"
                           >
                             Copy Reply
                           </button>
                           <button
                             type="button"
                             onClick={handleGenerateReply}
-                            className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[10px] transition"
+                            className="py-1 px-2.5 rounded-lg bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-[10px] transition"
                           >
                             Regenerate
                           </button>
@@ -1111,7 +1111,7 @@ export default function Tickets() {
                       <button
                         type="button"
                         onClick={handleGenerateReply}
-                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
                       >
                         Generate Reply
                       </button>
@@ -1120,17 +1120,17 @@ export default function Tickets() {
                 )}
 
                 {/* AI Sentiment Analysis block */}
-                <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
-                  <label className="text-[10px] text-gray-500 uppercase font-bold block">😊 AI Sentiment Analysis</label>
+                <div className="space-y-3 p-3 bg-bgSurface border border-slate-200/50 border border-borderDefault rounded-xl text-xs">
+                  <label className="text-[10px] text-textDisabled uppercase font-bold block">😊 AI Sentiment Analysis</label>
                   {sentimentLoading ? (
-                    <div className="flex items-center gap-2 text-gray-400 italic">
+                    <div className="flex items-center gap-2 text-textMuted italic">
                       <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
                       Analyzing customer sentiment...
                     </div>
                   ) : sentiment ? (
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-gray-400 font-medium">Sentiment Status:</span>
+                        <span className="text-[10px] text-textMuted font-medium">Sentiment Status:</span>
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           sentiment.sentiment === 'POSITIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                           sentiment.sentiment === 'NEUTRAL' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
@@ -1145,26 +1145,26 @@ export default function Tickets() {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-gray-400 font-medium">Confidence Score:</span>
-                        <span className="font-bold text-gray-200">{sentiment.confidence}%</span>
+                        <span className="text-[10px] text-textMuted font-medium">Confidence Score:</span>
+                        <span className="font-bold text-textSecondary">{sentiment.confidence}%</span>
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-gray-400 font-medium">Dominant Emotion:</span>
-                        <span className="font-bold text-gray-200">{sentiment.emotion}</span>
+                        <span className="text-[10px] text-textMuted font-medium">Dominant Emotion:</span>
+                        <span className="font-bold text-textSecondary">{sentiment.emotion}</span>
                       </div>
 
                       <div className="space-y-1">
-                        <span className="text-[10px] text-gray-400 font-medium block">Analysis Summary:</span>
-                        <p className="text-gray-300 leading-relaxed italic bg-white/5 p-2 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-textMuted font-medium block">Analysis Summary:</span>
+                        <p className="text-textSecondary leading-relaxed italic bg-bgSecondary p-2 rounded-lg border border-borderDefault">
                           "{sentiment.summary}"
                         </p>
                       </div>
 
                       {sentiment.agentAdvice && (
                         <div className="space-y-1">
-                          <span className="text-[10px] text-indigo-400 font-medium block">Recommended Agent Approach:</span>
-                          <p className="text-gray-300 leading-relaxed bg-indigo-500/5 p-2 rounded-lg border border-indigo-500/10 font-sans">
+                          <span className="text-[10px] text-primary font-medium block">Recommended Agent Approach:</span>
+                          <p className="text-textSecondary leading-relaxed bg-indigo-500/5 p-2 rounded-lg border border-indigo-500/10 font-sans">
                             {sentiment.agentAdvice}
                           </p>
                         </div>
@@ -1174,7 +1174,7 @@ export default function Tickets() {
                         <button
                           type="button"
                           onClick={handleAnalyzeSentiment}
-                          className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[9px] rounded-lg transition"
+                          className="py-1 px-2.5 bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-[9px] rounded-lg transition"
                         >
                           Re-Analyze
                         </button>
@@ -1184,7 +1184,7 @@ export default function Tickets() {
                     <button
                       type="button"
                       onClick={handleAnalyzeSentiment}
-                      className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                      className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
                     >
                       Analyze Sentiment
                     </button>
@@ -1193,32 +1193,32 @@ export default function Tickets() {
 
                 {/* AI Agent Assignment Recommendation block (ADMIN and AGENT only) */}
                 {user?.role !== 'CUSTOMER' && (
-                  <div className="space-y-3 p-3 bg-slate-900/50 border border-white/5 rounded-xl text-xs">
-                    <label className="text-[10px] text-gray-500 uppercase font-bold block">✨ AI Assignment Recommendation</label>
+                  <div className="space-y-3 p-3 bg-bgSurface border border-slate-200/50 border border-borderDefault rounded-xl text-xs">
+                    <label className="text-[10px] text-textDisabled uppercase font-bold block">✨ AI Assignment Recommendation</label>
                     {assignmentLoading ? (
-                      <div className="flex items-center gap-2 text-gray-400 italic">
+                      <div className="flex items-center gap-2 text-textMuted italic">
                         <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
                         Generating routing recommendation...
                       </div>
                     ) : assignmentRec ? (
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-gray-400 font-medium">Recommended Agent:</span>
-                          <span className="font-bold text-gray-200">
+                          <span className="text-[10px] text-textMuted font-medium">Recommended Agent:</span>
+                          <span className="font-bold text-textSecondary">
                             {assignmentRec.recommendedAgentName || 'No agents available'}
                           </span>
                         </div>
 
                         {assignmentRec.recommendedAgentName && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-gray-400 font-medium">Confidence Score:</span>
-                            <span className="font-bold text-indigo-400">{assignmentRec.confidence}%</span>
+                            <span className="text-[10px] text-textMuted font-medium">Confidence Score:</span>
+                            <span className="font-bold text-primary">{assignmentRec.confidence}%</span>
                           </div>
                         )}
 
                         <div className="space-y-1">
-                          <span className="text-[10px] text-gray-400 font-medium block">Match Reason:</span>
-                          <p className="text-gray-300 leading-relaxed bg-white/5 p-2 rounded-lg border border-white/5 italic">
+                          <span className="text-[10px] text-textMuted font-medium block">Match Reason:</span>
+                          <p className="text-textSecondary leading-relaxed bg-bgSecondary p-2 rounded-lg border border-borderDefault italic">
                             "{assignmentRec.reason}"
                           </p>
                         </div>
@@ -1227,7 +1227,7 @@ export default function Tickets() {
                           <button
                             type="button"
                             onClick={handleRecommendAssignment}
-                            className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold text-[9px] rounded-lg transition"
+                            className="py-1 px-2.5 bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-[9px] rounded-lg transition"
                           >
                             Refresh
                           </button>
@@ -1236,7 +1236,7 @@ export default function Tickets() {
                               type="button"
                               onClick={() => handleAssignAgent(assignmentRec.recommendedAgentId)}
                               disabled={formLoading}
-                              className="py-1 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[9px] rounded-lg transition disabled:opacity-50"
+                              className="py-1 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-textPrimary font-bold text-[9px] rounded-lg transition disabled:opacity-50"
                             >
                               Assign Recommended Agent
                             </button>
@@ -1247,7 +1247,7 @@ export default function Tickets() {
                       <button
                         type="button"
                         onClick={handleRecommendAssignment}
-                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
+                        className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-primary border border-indigo-500/20 font-bold text-[10px] rounded-xl transition"
                       >
                         Recommend Agent Assignment
                       </button>
@@ -1257,10 +1257,10 @@ export default function Tickets() {
 
                 {/* Soft Delete widget for ADMIN */}
                 {user?.role === 'ADMIN' && (
-                  <div className="pt-4 border-t border-white/5">
+                  <div className="pt-4 border-t border-borderDefault">
                     <button
                       onClick={handleDeleteTicket}
-                      className="w-full py-2.5 rounded-xl bg-red-600/10 hover:bg-red-600 border border-red-500/20 text-red-300 hover:text-white font-semibold text-xs transition"
+                      className="w-full py-2.5 rounded-xl bg-red-600/10 hover:bg-red-600 border border-red-500/20 text-red-300 hover:text-textPrimary font-semibold text-xs transition"
                     >
                       Delete Ticket (Soft Delete)
                     </button>
@@ -1297,8 +1297,8 @@ export default function Tickets() {
 }
 
 const FilterBadge = ({ label, onClear }) => (
-  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-primary rounded-lg text-[10px] font-bold">
     {label}
-    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+    <button onClick={onClear} className="hover:text-textPrimary transition font-black ml-1 select-none">×</button>
   </span>
 );

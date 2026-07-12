@@ -46,7 +46,7 @@ export default function ArticleForm({ article = null, onSubmit, onCancel, loadin
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
-      <h2 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      <h2 className="text-xl font-bold bg-gradient-to-r from-textPrimary to-textSecondary bg-clip-text text-transparent">
         {article ? 'Edit Article Details' : 'Create Knowledge Article'}
       </h2>
 
@@ -58,67 +58,67 @@ export default function ArticleForm({ article = null, onSubmit, onCancel, loadin
 
       {/* Title */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Title</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Title</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={loading}
           placeholder="e.g. How to reset your password"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Category */}
         <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-semibold block">Category</label>
+          <label className="text-xs text-textMuted uppercase font-semibold block">Category</label>
           <input
             type="text"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             disabled={loading}
             placeholder="e.g. Account Security"
-            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+            className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
           />
         </div>
 
         {/* Tags */}
         <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-semibold block">Tags (Comma-separated)</label>
+          <label className="text-xs text-textMuted uppercase font-semibold block">Tags (Comma-separated)</label>
           <input
             type="text"
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
             disabled={loading}
             placeholder="e.g. password, reset, auth"
-            className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50"
+            className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50"
           />
         </div>
       </div>
 
       {/* Body Content */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-semibold block">Content Body</label>
+        <label className="text-xs text-textMuted uppercase font-semibold block">Content Body</label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={loading}
           placeholder="Write the guide instructions or FAQ answer details here..."
           rows="8"
-          className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition duration-150 disabled:opacity-50 resize-y font-sans leading-relaxed"
+          className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition duration-150 disabled:opacity-50 resize-y font-sans leading-relaxed"
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-6 pt-2 border-t border-white/5">
+      <div className="flex flex-col sm:flex-row gap-6 pt-2 border-t border-borderDefault">
         {/* Status selection */}
         <div className="flex items-center gap-3">
-          <label className="text-xs text-gray-400 uppercase font-semibold">Publish Status:</label>
+          <label className="text-xs text-textMuted uppercase font-semibold">Publish Status:</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             disabled={loading}
-            className="bg-[#161C2C] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+            className="bg-bgBase border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
           >
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
@@ -127,13 +127,13 @@ export default function ArticleForm({ article = null, onSubmit, onCancel, loadin
 
         {/* FAQ Flag */}
         <div className="flex items-center gap-3">
-          <label className="text-xs text-gray-400 uppercase font-semibold flex items-center gap-2 cursor-pointer select-none">
+          <label className="text-xs text-textMuted uppercase font-semibold flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={isFaq}
               onChange={(e) => setIsFaq(e.target.checked)}
               disabled={loading}
-              className="rounded bg-[#161C2C] border-white/10 text-indigo-600 focus:ring-indigo-500/50"
+              className="rounded bg-bgBase border-borderDefault text-indigo-600 focus:ring-indigo-500/50"
             />
             Mark as FAQ Item
           </label>
@@ -141,12 +141,12 @@ export default function ArticleForm({ article = null, onSubmit, onCancel, loadin
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-4 pt-4 border-t border-white/5">
+      <div className="flex gap-4 pt-4 border-t border-borderDefault">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="w-1/2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-semibold text-sm transition border border-white/5"
+          className="w-1/2 py-3 rounded-xl bg-bgSecondary hover:bg-slate-700 text-textSecondary font-semibold text-sm transition border border-borderDefault"
         >
           Cancel
         </button>
@@ -157,7 +157,7 @@ export default function ArticleForm({ article = null, onSubmit, onCancel, loadin
         >
           {loading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-borderDefault border-t-white rounded-full animate-spin"></div>
               Saving...
             </>
           ) : (

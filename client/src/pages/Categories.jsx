@@ -158,20 +158,20 @@ export default function Categories() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-200 p-6 flex flex-col items-center justify-start relative overflow-hidden">
+    <div className="min-h-screen bg-bgBase text-textSecondary p-6 flex flex-col items-center justify-start relative overflow-hidden">
       {/* Background radial blobs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <div className="w-full max-w-6xl bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl z-10">
+      <div className="w-full max-w-6xl bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl z-10">
         
         {/* Navigation header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-white/5 mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-borderDefault mb-6 gap-4">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-gray-400 hover:text-white transition text-sm font-medium">
+            <Link to="/dashboard" className="text-textMuted hover:text-textPrimary transition text-sm font-medium">
               ← Dashboard
             </Link>
-            <span className="text-white font-bold text-xl ml-2">Ticket Categories</span>
+            <span className="text-textPrimary font-bold text-xl ml-2">Ticket Categories</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -179,13 +179,13 @@ export default function Categories() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleExport('pdf')}
-                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-primary-hover border border-indigo-500/20 font-semibold text-xs transition"
                 >
                   Export PDF
                 </button>
                 <button
                   onClick={() => handleExport('csv')}
-                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/20 font-semibold text-xs transition"
+                  className="py-1.5 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-primary-hover border border-indigo-500/20 font-semibold text-xs transition"
                 >
                   Export CSV
                 </button>
@@ -203,7 +203,7 @@ export default function Categories() {
                 + Add Category
               </button>
             )}
-            <div className="text-xs text-indigo-400 font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <div className="text-xs text-primary font-semibold px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
               Access: {user?.role}
             </div>
           </div>
@@ -234,13 +234,13 @@ export default function Categories() {
                   placeholder="Search categories by name, description..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition placeholder-gray-500"
+                  className="w-full bg-bgBase border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-textPrimary placeholder-textDisabled focus:outline-none focus:border-primary transition placeholder-textDisabled"
                 />
                 {search && (
                   <button
                     type="button"
                     onClick={() => setSearch('')}
-                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300 text-xs font-semibold"
+                    className="absolute right-3 top-3 text-textDisabled hover:text-textSecondary text-xs font-semibold"
                   >
                     Clear
                   </button>
@@ -253,7 +253,7 @@ export default function Categories() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-[#161C2C] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500/50 transition"
+                    className="w-full bg-bgBase border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-textSecondary focus:outline-none focus:border-indigo-500/50 transition"
                   >
                     <option value="">All Statuses</option>
                     <option value="true">Active Only</option>
@@ -268,7 +268,7 @@ export default function Categories() {
             {/* Active badges & reset row */}
             {hasActiveFilters() && (
               <div className="flex flex-wrap items-center gap-2 mt-2 mb-4">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Active Filters:</span>
+                <span className="text-[10px] text-textDisabled uppercase font-bold tracking-wider">Active Filters:</span>
                 {debouncedSearch && <FilterBadge label={`Search: "${debouncedSearch}"`} onClear={() => setSearch('')} />}
                 {statusFilter && (
                   <FilterBadge
@@ -288,13 +288,13 @@ export default function Categories() {
             {/* List Grids */}
             <div className="relative min-h-[250px]">
               {loading ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-950/20 z-20 rounded-2xl">
+                <div className="absolute inset-0 flex items-center justify-center bg-bgBase/20 z-20 rounded-2xl">
                   <div className="w-8 h-8 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
                 </div>
               ) : categories.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-20 text-gray-400">
+                <div className="flex flex-col items-center justify-center text-center py-20 text-textMuted">
                   <span className="text-base font-medium">No categories found</span>
-                  <p className="text-xs text-gray-500 mt-1">Adjust search parameters or status options.</p>
+                  <p className="text-xs text-textDisabled mt-1">Adjust search parameters or status options.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -342,8 +342,8 @@ export default function Categories() {
 }
 
 const FilterBadge = ({ label, onClear }) => (
-  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-bold">
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-primary rounded-lg text-[10px] font-bold">
     {label}
-    <button onClick={onClear} className="hover:text-white transition font-black ml-1 select-none">×</button>
+    <button onClick={onClear} className="hover:text-textPrimary transition font-black ml-1 select-none">×</button>
   </span>
 );
