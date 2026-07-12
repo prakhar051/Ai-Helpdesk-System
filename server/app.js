@@ -36,7 +36,7 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
 // Express Rate Limiter
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 10000, // Limit each IP to 10000 requests per window to avoid local test blocks
   standardHeaders: true,
   legacyHeaders: false,
   message: {

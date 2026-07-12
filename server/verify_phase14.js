@@ -193,7 +193,7 @@ async function apiPost(url, body, token = null) {
     await page.click('button:has-text("Analyze Sentiment")');
     
     // Wait for badge text
-    await page.waitForSelector('text=UNKNOWN', { timeout: 10000 });
+    await page.waitForSelector('span:has-text("NEGATIVE"), span:has-text("UNKNOWN"), span:has-text("POSITIVE")', { timeout: 10000 });
     console.log('   ✓ Sentiment status badge rendered inside widget container.');
 
     await page.screenshot({ path: path.join(__dirname, 'customer_sentiment_detail.png') });

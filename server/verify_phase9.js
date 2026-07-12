@@ -29,6 +29,7 @@ async function apiPost(url, body, token = null) {
     await prisma.comment.deleteMany({});
     await prisma.attachment.deleteMany({});
     await prisma.ticket.deleteMany({});
+    await prisma.article.deleteMany({});
     await prisma.category.deleteMany({});
     await prisma.user.deleteMany({});
     await prisma.$executeRawUnsafe('ALTER SEQUENCE tickets_ticket_number_seq RESTART WITH 1;');
