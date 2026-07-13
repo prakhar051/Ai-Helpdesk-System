@@ -58,16 +58,21 @@ async function main() {
   const customerHashed = await bcrypt.hash('qwerty123', 10);
   const generalHashed = await bcrypt.hash('password123', 10);
 
-  // Core target account
-  const mainCustomerEmail = 'yadavprakhhar@gmail.com';
-  const mainCustomer = await prisma.user.upsert({
-    where: { email: mainCustomerEmail },
+  // Core target accounts
+  const customer1 = await prisma.user.upsert({
+    where: { email: 'yadavprakhar51@gmail.com' },
+    update: { name: 'Prakhar Customer 51', password: customerHashed, role: 'CUSTOMER', isActive: true },
+    create: { email: 'yadavprakhar51@gmail.com', name: 'Prakhar Customer 51', password: customerHashed, role: 'CUSTOMER', isActive: true }
+  });
+
+  const customer2 = await prisma.user.upsert({
+    where: { email: 'yadavprakhhar@gmail.com' },
     update: { name: 'Prakhar Customer', password: customerHashed, role: 'CUSTOMER', isActive: true },
-    create: { email: mainCustomerEmail, name: 'Prakhar Customer', password: customerHashed, role: 'CUSTOMER', isActive: true }
+    create: { email: 'yadavprakhhar@gmail.com', name: 'Prakhar Customer', password: customerHashed, role: 'CUSTOMER', isActive: true }
   });
 
   // Additional Customers (10)
-  const dbCustomers = [mainCustomer];
+  const dbCustomers = [customer1, customer2];
   for (let i = 1; i <= 10; i++) {
     const email = `customer${i}@demohd.com`;
     const cust = await prisma.user.upsert({
