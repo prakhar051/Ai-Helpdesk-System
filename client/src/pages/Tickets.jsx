@@ -47,6 +47,7 @@ export default function Tickets() {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [prefillData, setPrefillData] = useState(null);
 
   // AI KB Recommendations
   const [kbRecs, setKbRecs] = useState([]);
@@ -304,6 +305,19 @@ export default function Tickets() {
       clearTimeout(handler);
     };
   }, [search]);
+
+  // Handle direct prefill/create redirection from ChatBot
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const prefillCreate = params.get('create');
+    if (prefillCreate === 'true') {
+      const prefillTitle = params.get('title') || '';
+      const prefillDescription = params.get('description') || '';
+      setPrefillData({ title: prefillTitle, description: prefillDescription });
+      setView('CREATE');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Reset page to 1 on filter changes
   useEffect(() => {
@@ -1276,8 +1290,12 @@ export default function Tickets() {
         {view === 'CREATE' && (
           <TicketForm 
             loading={formLoading} 
+            prefillData={prefillData}
             onSubmit={handleCreateTicket} 
-            onCancel={() => setView('LIST')} 
+            onCancel={() => {
+              setView('LIST');
+              setPrefillData(null);
+            }} 
           />
         )}
 

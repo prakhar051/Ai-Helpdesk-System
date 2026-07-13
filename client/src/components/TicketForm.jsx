@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../services/apiClient';
 
-export default function TicketForm({ ticket = null, onSubmit, onCancel, loading = false }) {
-  const [title, setTitle] = useState(ticket?.title || '');
-  const [description, setDescription] = useState(ticket?.description || '');
+export default function TicketForm({ ticket = null, prefillData = null, onSubmit, onCancel, loading = false }) {
+  const [title, setTitle] = useState(ticket?.title || prefillData?.title || '');
+  const [description, setDescription] = useState(ticket?.description || prefillData?.description || '');
   const [priority, setPriority] = useState(ticket?.priority || 'MEDIUM');
   const [categoryId, setCategoryId] = useState(ticket?.categoryId || 'unassigned');
   const [aiReason, setAiReason] = useState(ticket?.aiReason || '');

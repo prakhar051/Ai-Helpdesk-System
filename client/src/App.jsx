@@ -1,3 +1,4 @@
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HealthDashboard from './pages/HealthDashboard';
 import Login from './pages/Login';
@@ -11,6 +12,8 @@ import Categories from './pages/Categories';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+
+const ChatBot = lazy(() => import('./components/ChatBot'));
 
 function App() {
   return (
@@ -92,6 +95,9 @@ function App() {
             <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+          <Suspense fallback={null}>
+            <ChatBot />
+          </Suspense>
         </Router>
       </AuthProvider>
     </SocketProvider>

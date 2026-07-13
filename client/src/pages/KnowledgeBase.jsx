@@ -83,6 +83,32 @@ export default function KnowledgeBase() {
     }
   }, [page, debouncedSearch, categoryFilter, typeFilter, statusFilter, view]);
 
+  // Handle direct article details retrieval by ID
+  const handleSelectArticleById = async (articleId) => {
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await apiClient.get(`/kb/${articleId}`);
+      if (response.data?.status === 'success') {
+        setSelectedArticle(response.data.data.article);
+        setView('DETAIL');
+      }
+    } catch (err) {
+      console.error('Failed to load article details:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to fetch article details.');
+    }
+  };
+
+  // Handle direct ID redirect from ChatBot
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get('id');
+    if (articleId) {
+      handleSelectArticleById(articleId);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const hasActiveFilters = () => {
     return !!(debouncedSearch || categoryFilter || typeFilter || statusFilter);
   };

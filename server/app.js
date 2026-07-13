@@ -13,6 +13,7 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/v1/tickets', ticketRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/chat', chatbotRoutes);
 
 // Fallback 404 handler
 app.use((req, res, next) => {
