@@ -544,8 +544,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-bgBase text-textSecondary p-6 flex flex-col items-center">
-      {/* Top Banner Navigation */}
-      <div className="w-full max-w-5xl bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl flex items-center justify-between mb-8">
+      <div className="w-full max-w-5xl bg-bgSurface border border-slate-200/60 backdrop-blur-md border border-borderDefault rounded-2xl p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center font-bold text-textPrimary text-lg">
             A
@@ -556,7 +555,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {user.role !== 'CUSTOMER' && (
             <div className="flex gap-2">
               <button
